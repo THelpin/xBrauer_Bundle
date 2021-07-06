@@ -121,7 +121,7 @@ BrauerList::usage="BrauerList is the head for the List associated to a Brauer di
 BrauerGraph::usage="BrauerGraph is the head for the Graph associated to a Brauer diagram";
 BrauerTab::usage="BrauerTab is the head for the list associated to a Young tableau filled with numbers 1,2 and 3. BrauerTableaux label the conjugacy classes obtained by averaging diagrams with \
 the symmetric group in the Brauer Algebra. The numbers 1,2, and 3 represente North arcs, South arcs, and Propagating lines respectively.\
- Cf: O.King, P.Martin, and A.Parker : Journal of Algebra 512, 20 (2018).";
+ Cf: O.King, P.Martin, and A.Parker : Journal of Algebra 512, 20 (2018) and also Shalile, A. On the Center of the Brauer Algebra. Algebr Represent Theor 16, 65\[Dash]100 (2013).";
 (*** Brauer Diagram/List ***)
 SymmetricGroupQ::usage="SymmetricGrouQ[brauerlist] returns True if brauerlist represent a permutation, False otherwise.";
 PermToBrauer::usage="PermToBrauer[degree,perm] transform a permutation in xPerm notation (Perm/Cycles) into a BrauerList";
@@ -141,7 +141,7 @@ SymmetricGroupOnly::usage="SymmetricGroupOnly is a booleen option for BrauerTabl
 BrauerProduct::usage="BrauerProduct[diag1,diag2] return the product diagram of diag1 with diag2, BrauerProduct[list1,list2] returns/
  the product list of list1 with list2.";
 dtrace::usage="The scalar resulting from the contraction of two arcs in the Brauer product";
-OutputBrauer::usage="OutputBrauer is a booleen option for GenerateConjugacyClass and for SymmetryGroupAverage. Its value can be either Graph or List.";
+OutputBrauer::usage="OutputBrauer is a booleen option for ConjugacyClassSum and for SymmetryGroupAverage. Its value can be either Graph or List.";
 
 (****************************************************************************************)
 (************************** Tools from the symmetric Group ******************************)
@@ -170,36 +170,32 @@ TableauForm::usage="Transform a list into a young tableau format";
 BrauerTableaux::usage="BrauerTableaux[degree,narcs] BrauerTab[degree,narcs] returns a list of the conjugacy class for Brauer(degree) with narcs arcs in a form of NSP Young tableaux,\
  where north arcs (N) are represented by 1 south arcs (S) by 2 and propagating lines (P) by 3.";
 NumberOfBrauerTab::usage="NumberOfBrauerTab[n] returns the number of conjugacy class in Brauer on n vertices.";
-ConjugacyClass::usage="ConjugacyClass is a booleen option for brauer product. It increase the speed when one is/
- interested by the product of class sum ";
+ConjugacyClass::usage="ConjugacyClass[brauerlist] returns a list of the elements in the same (symmetric group) conjugacy class as brauerlist. It is also a booleen option for brauer product.
+It increase the speed when one is interested by the product of class sum ";
 ConjugacyClassSum::usage="ConjugacyClassSum[diag] generate the sum of symmetric group conjugate diagrams of diag.";
 SymmetricGroupAverage::usage="SymmetricGroupAverage[diagBrau,n1,n2] generate a list of diagrams corresponding to every permutations of nodes n1 to n2";
 NormalizeClass::usage="NormalizeClass is a booleen option for GenerateConjugateDiagrams and GenerateConjugateList.";
 BrauerTabToRep::usage="TableauToRepDiagram[NSPtableau] yield the representative diagram corresponding to the NSP tableau.";
 MergeBrauer::usage="MergeBrauer[brauerlist1,brauerlist2] glue brauerlist 1 and brauerlist 2 together.";
-(*** Algebra of conjugacy classes and Traceless Projectors ***)
-ConjugacyClassProduct::usage="ConjugacyClassProduct[tab1,tab2], performs the product the conjugacy class sum associated to the brauer tableau tab1\
- with the one associated to the brauer tableau tab2.";
- 
 (****************************************************************************************)
 (***************************** HyperOctahedral Group ************************************)
 (****************************************************************************************)
-HyperOctahedralQ::usage="bla";
-HyperOctahedralGenerators::usage="bla";
-HyperOctahedralGroup::usage="bla";
-CosetType::usage="bla";
+HyperOctahedralQ::usage="To do";
+HyperOctahedralGenerators::usage="To do";
+HyperOctahedralGroup::usage="To do";
+CosetType::usage="To do";
 (****************************************************************************************)
 (***************************** Weingarten Calculus **************************************)
 (****************************************************************************************)
 (** Characters of the symmetric group : From the Package IntU by Zbigniew Puchala **)
-CharacterSymmetricGroup::usage="bla";
-CycleType::usage="bla";
+CharacterSymmetricGroup::usage="To do";
+CycleType::usage="To do";
 (** Weingarten function *)
-ZonalSpherical::usage="bla";
-ZonalPolynomialId::usage="bla";
-WeingartenO::usage="bla";
-SchurPolynomialId::usage="bla";
-WeingartenU::usage="bla";
+ZonalSpherical::usage="To do";
+ZonalPolynomialId::usage="To do";
+WeingartenO::usage="To do";
+SchurPolynomialId::usage="To do";
+WeingartenU::usage="To do";
 (****************************************************************************************)
 (**************** Algebra of Conjugacy classes and Traceless projectors *****************)
 (****************************************************************************************)
@@ -208,12 +204,14 @@ IdealSpace::usage="IdealSpace is booleen option for ConjugacyClassRelations. Let
 Then there a chain of ideals in the Brauer algebra : J(n) in J(n-1) in ... in J(1) in J(0)=B(n).";
 FactorSpace::usage="FactorSpace is booleen option for ConjugacyClassProduct and ConjugacyClassRelations. One can define a product in the factor space consisting of \
 diagram with exaclty m arcs : J[m]=J(m)/J(m+1). For example the symmetric group algebra is B(n)/J(1).";
+ConjugacyClassProduct::usage="ConjugacyClassProduct[tab1,tab2], performs the product the conjugacy class sum associated to the brauer tableau tab1\
+ with the one associated to the brauer tableau tab2.";
 ConjugacyClassRelations::usage="ConjugacyClassRelations[tab] returns all product rules between tab and others classes in the algebra.";
 SplittingIdempotent::usage="SplittingIdempotent[n,f] returns the splitting idempotent corresponding to the short sequence 0->J(f)->B(n)->B(n)/J(f).";
-TraceProjector::usage="TraceProjector[n,f] returns the f-trace projector in Brauer(n). The f-trace projector can be understood as the identity in J(f).";
+TraceProjector::usage="TraceProjector[n,f] returns the f-trace projector in Brauer(n). The f-trace projector can be understood as the identity in J(f) the space of diagram with at least f arcs.";
 TraceLessProjector::usage="TraceLessProjector[n,f] returns the f-traceless projector in Brauer(n).";
-ToTraceTensor::usage="To do";
-ToTracelessTensor::usage="To do";
+ToTraceTensor::usage="ToTraceTensor[tens,f] projects tens onto the space of f-trace tensors using TraceProjector[n,f] where n is the order of tens.";
+ToTracelessTensor::usage="ToTracelessTensor[tens,f] projects tens onto the space of f-traceless tensors using TraceLessProjector[n,f] where n is the order of tens.";
 
 (****************************************************************************************)
 (*************************** Realization on tensors *************************************)
@@ -1296,211 +1294,6 @@ listconjedge=Map[Sort,listperm,2];
 If[normalize,Return[DeleteDuplicates[listconjedge],Block],
 Return[listconjedge,Block]];
 ]
-
-
-(* ::Input::Initialization:: *)
-Options[SplitBrauerDiagram]:={VertexSize->Tiny,EdgeStyle->Automatic,ImageSize->Small}
-SplitBrauerDiagram[diag_?GraphQ,options:OptionsPattern[]]:=Module[{edgelist=Map[Sort,List@@@EdgeList[diag]],orderdiag,diag1,path,range1,range2,arcsup,arcsdown,lines,modedgelist,pos,pathtemp,orderdiag1,Upvertex,Downvertex,ruleup,ruledown,brauerdiag1,ordermoedgelist,imagesize,vertexsize,edgestyle},
-{imagesize}=OptionValue[{SplitBrauerDiagram},{options},{ImageSize}];
-{vertexsize}=OptionValue[{SplitBrauerDiagram},{options},{VertexSize}];
-{edgestyle}=OptionValue[{SplitBrauerDiagram},{options},{EdgeStyle}];
-orderdiag=Length[edgelist];
-range1=Range[orderdiag];
-range2=Range[orderdiag+1,2*orderdiag];
-arcsup=EdgesToArcsUpList[range1,edgelist];
-arcsdown=EdgesToArcsDownList[range2,edgelist];
-lines=EdgesToLinesList[range1,range2,edgelist];
-modedgelist=Join[{arcsup},{arcsdown},{lines}];
-brauerdiag1={};
-While[!SameQ[Flatten[modedgelist],{}],
-	diag1={{},{},{}};
-	path=Flatten@Cases[modedgelist,{a_,b_}/;a==1,2];
-	pos=2;
-	orderdiag=Length[Flatten[modedgelist,1]];
-	arcsup=modedgelist[[1]];
-	arcsdown=modedgelist[[2]];
-	lines=modedgelist[[3]];
-	While[!MemberQ[Flatten@diag1,1+orderdiag],
-		If[MemberQ[arcsup,path],
-			AppendTo[diag1[[1]],path];
-			pathtemp=Flatten@Cases[modedgelist,{a_,b_}/;a==path[[pos]]+orderdiag||b==path[[pos]]+orderdiag,2];
-			pos=If[pathtemp[[1]]==path[[pos]]+orderdiag,2,1];
-			path=pathtemp,
-		If[MemberQ[lines,path],
-			AppendTo[diag1[[3]],path];
-			If[LessEqual[path[[pos]],orderdiag],
-				pathtemp=Flatten@Cases[modedgelist,{a_,b_}/;a==path[[pos]]+orderdiag||b==path[[pos]]+orderdiag,2];
-				pos=If[pathtemp[[1]]==path[[pos]]+orderdiag,2,1],
-				pathtemp=Flatten@Cases[modedgelist,{a_,b_}/;a==path[[pos]]-orderdiag||b==path[[pos]]-orderdiag,2];
-				pos=If[pathtemp[[1]]==path[[pos]]-orderdiag,2,1]
-				];
-			path=pathtemp,
-			AppendTo[diag1[[2]],path];
-			pathtemp=Flatten@Cases[modedgelist,{a_,b_}/;a==path[[pos]]-orderdiag||b==path[[pos]]-orderdiag,2];
-			pos=If[pathtemp[[1]]==path[[pos]]-orderdiag,2,1];
-			path=pathtemp
-			]]
-			];
-	modedgelist[[1]]=Complement[modedgelist[[1]],diag1[[1]]];
-	modedgelist[[2]]=Complement[modedgelist[[2]],diag1[[2]]];
-	modedgelist[[3]]=Complement[modedgelist[[3]],diag1[[3]]];
-	ordermoedgelist=Length[Flatten[modedgelist,1]];
-	If[ordermoedgelist==1,
-		Upvertex=Flatten[modedgelist][[1]];
-		Downvertex=Flatten[modedgelist][[2]];
-		ruleup={Upvertex->1};
-		ruledown={Downvertex->2};
-		modedgelist=modedgelist/.ruleup/.ruledown,
-		Upvertex=Sort@Join[Flatten@Map[#&,modedgelist[[1]]],Map[#[[1]]&,modedgelist[[3]]]];
-		Downvertex=Sort@Join[Flatten@Map[#&,modedgelist[[2]]],Map[#[[2]]&,modedgelist[[3]]]];
-		ruleup=MapThread[#1->#2&,{Upvertex,Range[ordermoedgelist]}];
-		ruledown=MapThread[#1->#2&,{Downvertex,Range[ordermoedgelist+1,2*ordermoedgelist]}];
-		modedgelist=modedgelist/.ruleup/.ruledown
-		];
-	orderdiag1=Length[Flatten[diag1,1]];
-	Upvertex=Sort@Join[Flatten@Map[#&,diag1[[1]]],Map[#[[1]]&,diag1[[3]]]];
-	Downvertex=Sort@Join[Flatten@Map[#&,diag1[[2]]],Map[#[[2]]&,diag1[[3]]]];
-	ruleup=MapThread[#1->#2&,{Upvertex,Range[orderdiag1]}];
-	ruledown=MapThread[#1->#2&,{Downvertex,Range[orderdiag1+1,2*orderdiag1]}];
-	diag1=diag1/.ruleup/.ruledown;
-	AppendTo[brauerdiag1,If[orderdiag1==1||orderdiag1==2,BrauerDiagram[orderdiag1,diag1[[1]],diag1[[2]],diag1[[3]],ImageSize->Tiny],BrauerDiagram[orderdiag1,diag1[[1]],diag1[[2]],diag1[[3]],ImageSize->imagesize]]]
-];
-brauerdiag1
-];
-
-
-(* ::Input::Initialization:: *)
-SplitBrauerDiagram[diaglist_?ListQ,options:OptionsPattern[]]:=Module[{edgelist=Map[Sort,Flatten[diaglist,1]],orderdiag,diag1,path,range1,range2,arcsup,arcsdown,lines,modedgelist,pos,pathtemp,orderdiag1,Upvertex,Downvertex,ruleup,ruledown,brauerlist1,imagesize,vertexsize,edgestyle,ordermoedgelist},
-{imagesize}=OptionValue[{SplitBrauerDiagram},{options},{ImageSize}];
-{vertexsize}=OptionValue[{SplitBrauerDiagram},{options},{VertexSize}];
-{edgestyle}=OptionValue[{SplitBrauerDiagram},{options},{EdgeStyle}];
-orderdiag=Length[edgelist];
-modedgelist=Join[{diaglist[[1]]},{diaglist[[2]]},{diaglist[[3]]}];
-brauerlist1={};
-While[!SameQ[Flatten[modedgelist],{}],
-	diag1={{},{},{}};
-	path=Flatten@Cases[modedgelist,{a_,b_}/;a==1,2];
-	pos=2;
-	orderdiag=Length[Flatten[modedgelist,1]];
-	arcsup=modedgelist[[1]];
-	arcsdown=modedgelist[[2]];
-	lines=modedgelist[[3]];
-	While[!MemberQ[Flatten@diag1,1+orderdiag],
-		If[MemberQ[arcsup,path],
-			AppendTo[diag1[[1]],path];
-			pathtemp=Flatten@Cases[modedgelist,{a_,b_}/;a==path[[pos]]+orderdiag||b==path[[pos]]+orderdiag,2];
-			pos=If[pathtemp[[1]]==path[[pos]]+orderdiag,2,1];
-			path=pathtemp,
-		If[MemberQ[lines,path],
-			AppendTo[diag1[[3]],path];
-			If[LessEqual[path[[pos]],orderdiag],
-				pathtemp=Flatten@Cases[modedgelist,{a_,b_}/;a==path[[pos]]+orderdiag||b==path[[pos]]+orderdiag,2];
-				pos=If[pathtemp[[1]]==path[[pos]]+orderdiag,2,1],
-				pathtemp=Flatten@Cases[modedgelist,{a_,b_}/;a==path[[pos]]-orderdiag||b==path[[pos]]-orderdiag,2];
-				pos=If[pathtemp[[1]]==path[[pos]]-orderdiag,2,1]
-				];
-		path=pathtemp,
-			AppendTo[diag1[[2]],path];
-			pathtemp=Flatten@Cases[modedgelist,{a_,b_}/;a==path[[pos]]-orderdiag||b==path[[pos]]-orderdiag,2];
-			pos=If[pathtemp[[1]]==path[[pos]]-orderdiag,2,1];
-			path=pathtemp
-			]]
-		];
-	modedgelist[[1]]=Complement[modedgelist[[1]],diag1[[1]]];
-	modedgelist[[2]]=Complement[modedgelist[[2]],diag1[[2]]];
-	modedgelist[[3]]=Complement[modedgelist[[3]],diag1[[3]]];
-	ordermoedgelist=Length[Flatten[modedgelist,1]];
-	If[ordermoedgelist==1,
-		Upvertex=Flatten[modedgelist][[1]];
-		Downvertex=Flatten[modedgelist][[2]];
-		ruleup={Upvertex->1};
-		ruledown={Downvertex->2};
-		modedgelist=modedgelist/.ruleup/.ruledown,
-		Upvertex=Sort@Join[Flatten@Map[#&,modedgelist[[1]]],Map[#[[1]]&,modedgelist[[3]]]];
-		Downvertex=Sort@Join[Flatten@Map[#&,modedgelist[[2]]],Map[#[[2]]&,modedgelist[[3]]]];
-		ruleup=MapThread[#1->#2&,{Upvertex,Range[ordermoedgelist]}];
-		ruledown=MapThread[#1->#2&,{Downvertex,Range[ordermoedgelist+1,2*ordermoedgelist]}];
-		modedgelist=modedgelist/.ruleup/.ruledown
-		];
-	orderdiag1=Length[Flatten[diag1,1]];
-	Upvertex=Sort@Join[Flatten@Map[#&,diag1[[1]]],Map[#[[1]]&,diag1[[3]]]];
-	Downvertex=Sort@Join[Flatten@Map[#&,diag1[[2]]],Map[#[[2]]&,diag1[[3]]]];
-	ruleup=MapThread[#1->#2&,{Upvertex,Range[orderdiag1]}];
-	ruledown=MapThread[#1->#2&,{Downvertex,Range[orderdiag1+1,2*orderdiag1]}];
-	diag1=diag1/.ruleup/.ruledown;
-	AppendTo[brauerlist1,Join[{diag1[[1]]},{diag1[[2]]},{diag1[[3]]}]]
-	];
-brauerlist1
-];
-
-
-(* ::Input::Initialization:: *)
-VLF[edgelist_]:=Module[{orderdiag=Length[edgelist],range1,range2,arcsup,arcsdown,lines,vertarcs1,vertarcs2,vertlines,vertspec,cyclespec,arcsarcsvert,linelinevert,linearcsvert,modedgelist,path,pathtemp,pos,diag1,count,vlflist},
-range1=Range[orderdiag];
-range2=Range[orderdiag+1,2*orderdiag];
-arcsup=EdgesToArcsUpList[range1,edgelist];
-arcsdown=EdgesToArcsDownList[range2,edgelist];
-lines=EdgesToLinesList[range1,range2,edgelist];
-modedgelist=Join[{arcsup},{arcsdown},{lines}];
-diag1={{},{},{}};
-path=Flatten@Cases[modedgelist,{a_,b_}/;a==1,2];
-pos=2;
-count=0;
-vlflist={};
-While[!MemberQ[Flatten@diag1,1+orderdiag],
-	count++;
-	If[MemberQ[arcsup,path],
-		AppendTo[diag1[[1]],path];
-		pathtemp=Flatten@Cases[modedgelist,{a_,b_}/;a==path[[pos]]+orderdiag||b==path[[pos]]+orderdiag,2];
-		If[MemberQ[arcsdown,pathtemp],AppendTo[vlflist,count->Placed[2,Center]],AppendTo[vlflist,count->Placed[1,Center]]];
-			pos=If[pathtemp[[1]]==path[[pos]]+orderdiag,2,1];
-			path=pathtemp,
-	If[MemberQ[lines,path],
-		AppendTo[diag1[[3]],path];
-		If[LessEqual[path[[pos]],orderdiag],
-			pathtemp=Flatten@Cases[modedgelist,{a_,b_}/;a==path[[pos]]+orderdiag||b==path[[pos]]+orderdiag,2];
-			If[MemberQ[arcsdown,pathtemp],AppendTo[vlflist,count->Placed[1,Center]],If[MemberQ[arcsup,pathtemp],AppendTo[vlflist,count->Placed[1,Center]],AppendTo[vlflist,count->Placed[0,Center]]]];
-			pos=If[pathtemp[[1]]==path[[pos]]+orderdiag,2,1],
-			pathtemp=Flatten@Cases[modedgelist,{a_,b_}/;a==path[[pos]]-orderdiag||b==path[[pos]]-orderdiag,2];
-			If[MemberQ[arcsdown,pathtemp],AppendTo[vlflist,count->Placed[1,Center]],If[MemberQ[arcsup,pathtemp],AppendTo[vlflist,count->Placed[1,Center]],AppendTo[vlflist,count->Placed[0,Center]]]];
-			pos=If[pathtemp[[1]]==path[[pos]]-orderdiag,2,1]
-			];
-	path=pathtemp,
-	AppendTo[diag1[[2]],path];
-	pathtemp=Flatten@Cases[modedgelist,{a_,b_}/;a==path[[pos]]-orderdiag||b==path[[pos]]-orderdiag,2];
-	If[MemberQ[arcsup,pathtemp],AppendTo[vlflist,count->Placed[2,Center]],AppendTo[vlflist,count->Placed[1,Center]]];
-	pos=If[pathtemp[[1]]==path[[pos]]-orderdiag,2,1];
-	path=pathtemp]]
-	];
-vlflist
-];
-
-
-(* ::Input::Initialization:: *)
-Options[ToCyclesGraph]:={VertexSize->Medium,EdgeStyle->Black,ImageSize->Small}
-ToCyclesGraph[diag_?GraphQ,options:OptionsPattern[]]:=Module[{cyclegraph,splitdiag,splitedgelist,splitorderdiag,imagesize,vertexsize,edgestyle},
-{imagesize}=OptionValue[{ToCyclesGraph},{options},{ImageSize}];
-{vertexsize}=OptionValue[{ToCyclesGraph},{options},{VertexSize}];
-{edgestyle}=OptionValue[{ToCyclesGraph},{options},{EdgeStyle}];
-splitdiag=SplitBrauerDiagram[diag];
-splitedgelist=Map[Sort@List@@@EdgeList[#]]&,splitdiag;
-splitorderdiag=Map[Length[#]&,splitedgelist];
-cyclegraph=MapThread[If[#1==1,Graph[{1},{},VertexLabels->{1->Placed[0,Center]},VertexSize->0.08,VertexStyle->White,EdgeStyle->edgestyle,ImageSize->Tiny],CycleGraph[#1,VertexLabels->VLF[#2],VertexSize->vertexsize,VertexStyle->White,DirectedEdges->True,EdgeStyle->edgestyle,ImageSize->imagesize]]&,{splitorderdiag,splitedgelist}];
-cyclegraph
-];
-
-
-(* ::Input::Initialization:: *)
-ToCyclesGraph[diaglist_?ListQ,options:OptionsPattern[]]:=Module[{edgelist=Flatten[diaglist,1],orderdiag,imagesize,vertexsize,cyclegraph,splitdiag,splitedgelist,splitorderdiag,edgestyle},
-{imagesize}=OptionValue[{ToCyclesGraph},{options},{ImageSize}];
-{vertexsize}=OptionValue[{ToCyclesGraph},{options},{VertexSize}];
-{edgestyle}=OptionValue[{ToCyclesGraph},{options},{EdgeStyle}];
-splitdiag=SplitBrauerDiagram[diaglist];
-splitedgelist=Map[Flatten[Complement[#,{{}}],1]&,splitdiag];
-splitorderdiag=Map[Length[#]&,splitedgelist];
-cyclegraph=MapThread[If[#1==1,Graph[{1},{},VertexLabels->{1->Placed[0,Center]},VertexSize->0.08,VertexStyle->White,EdgeStyle->edgestyle,ImageSize->Tiny],CycleGraph[#1,VertexLabels->VLF[#2],VertexSize->vertexsize,VertexStyle->White,DirectedEdges->True,EdgeStyle->edgestyle,ImageSize->imagesize]]&,{splitorderdiag,splitedgelist}];
-cyclegraph
-];
 
 
 (* ::Input::Initialization:: *)
