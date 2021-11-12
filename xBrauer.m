@@ -20,11 +20,11 @@
 
 
 (* ::Input::Initialization:: *)
-xAct`xBrauer`$Version={"0.0.2",{2021,31,01}}
+xAct`xBrauer`$Version={"0.0.2",{2021,11,09}}
 
 
 (* ::Input::Initialization:: *)
-xAct`xBrauer`$xTensorVersionExpected={"1.1.4",{2020,2,16}};
+xAct`xBrauer`$xTensorVersionExpected={"1.2.0",{2021,10,17}};
 xAct`xBrauer`$xTrasVersionExpected={"1.0.6",{2014,10,30}};
 
 
@@ -117,7 +117,7 @@ $xTrasVersionExpected::usage="$xTrasVersionExpected is a global variable giving 
 
 
 (*** Heads ****)
-BrauerList::usage="BrauerList is the head for the List associated to a Brauer diagram. The list is a order disjoint union of pair partitions.";
+BrauerList::usage="BrauerList is the head for the List associated to a Brauer diagram. The list is a ordered disjoint union of pair partitions.";
 BrauerGraph::usage="BrauerGraph is the head for the Graph associated to a Brauer diagram";
 BrauerTab::usage="BrauerTab is the head for the list associated to a Young tableau filled with numbers 1,2 and 3. BrauerTableaux label the conjugacy classes obtained by averaging diagrams with \
 the symmetric group in the Brauer Algebra. The numbers 1,2, and 3 represente North arcs, South arcs, and Propagating lines respectively.\
@@ -127,16 +127,13 @@ SymmetricGroupQ::usage="SymmetricGrouQ[brauerlist] returns True if brauerlist re
 PermToBrauer::usage="PermToBrauer[degree,perm] transform a permutation in xPerm notation (Perm/Cycles) into a BrauerList";
 PermNotation::usage="PermNotation is an options of BrauerToPerm. It must be either Cycles or Perm.";
 BrauerToPerm::usage="BrauerToPerm[brauerlist] transform a permutation in the brauerlist form into a (Perm/Cycles) in xPerm notation.";
-BrauerDiagram::usage =
-	"BrauerDiagram[degree,{{arcsup},{arcsdown},{lines}}]/BrauerDiagram[BrauerList[{{arcsup},{arcsdown},{lines}}]] returns a BrauerGraph object \
-corresponding to the list in the argument.";
-BrauerDiagramToList::usage="BrauerDiagramToList[dia] returns the BrauerList associated to dia.";
+BrauerDiagram::usage="BrauerDiagram[brauerlist] returns a BrauerGraph object corresponding to the brauerlist.";
+ToBrauerList::usage="ToBrauerList[dia] returns the BrauerList associated to dia.";
 BrauerElements::usage="BrauerElements[n] returns a list of all the elements of Brauer on n vertex,\
  namely the elements of the set of the disjoint union of pair partitions on 2n symbols.";
 IdentityBrauer::usage="IdentityBrauer[n] returns the identiy in B(n) in a the form of a BrauerList.";
-(** Generators of the Brauer monoid ***)
-BrauerGenerators::usage="BrauerGenerators[degree] generates the list of the generators of the Brauer mono\[IDoubleDot]d B(degree).";
-SymmetricGroupOnly::usage="SymmetricGroupOnly is a booleen option for BrauerTableaux, ConjugacyClassRelations.";
+(** Generators of the Brauer algebra ***)
+BrauerGenerators::usage="BrauerGenerators[degree] returns a generating set for the Brauer mono\[IDoubleDot]d B(degree).";
 (** Multiplication in Brauer **)
 BrauerProduct::usage="BrauerProduct[diag1,diag2] return the product diagram of diag1 with diag2, BrauerProduct[list1,list2] returns/
  the product list of list1 with list2.";
@@ -172,18 +169,19 @@ BrauerTableaux::usage="BrauerTableaux[degree,narcs] BrauerTab[degree,narcs] retu
 NumberOfBrauerTab::usage="NumberOfBrauerTab[n] returns the number of conjugacy class in Brauer on n vertices.";
 ConjugacyClass::usage="ConjugacyClass[brauerlist] returns a list of the elements in the same (symmetric group) conjugacy class as brauerlist. It is also a booleen option for brauer product.
 It increase the speed when one is interested by the product of class sum ";
+SymmetricGroupOnly::usage="SymmetricGroupOnly is a booleen option for BrauerTableaux, ConjugacyClassRelations.";
 ConjugacyClassSum::usage="ConjugacyClassSum[diag] generate the sum of symmetric group conjugate diagrams of diag.";
 SymmetricGroupAverage::usage="SymmetricGroupAverage[diagBrau,n1,n2] generate a list of diagrams corresponding to every permutations of nodes n1 to n2";
 NormalizeClass::usage="NormalizeClass is a booleen option for GenerateConjugateDiagrams and GenerateConjugateList.";
-BrauerTabToRep::usage="TableauToRepDiagram[NSPtableau] yield the representative diagram corresponding to the NSP tableau.";
+BrauerTabToRep::usage="BrauerTabToRep[brauertab] yield the representative diagram corresponding to the BrauerTab brauertab.";
 MergeBrauer::usage="MergeBrauer[brauerlist1,brauerlist2] glue brauerlist 1 and brauerlist 2 together.";
 (****************************************************************************************)
 (***************************** HyperOctahedral Group ************************************)
 (****************************************************************************************)
-HyperOctahedralQ::usage="To do";
-HyperOctahedralGenerators::usage="To do";
-HyperOctahedralGroup::usage="To do";
-CosetType::usage="To do";
+HyperOctahedralQ::usage="HyperOctahedralQ[perm] returns True if perm belong to the HyperOctahedral group, False otherwise.";
+HyperOctahedralGenerators::usage="HyperOctahedralGenerators[n] returns the generating set for the hyperoctahedral group.";
+HyperOctahedralGroup::usage="HyperOctahedralGroup[n] generates the elements of the group.";
+CosetType::usage="CosetType[perm] returns the coset type of perm.";
 (****************************************************************************************)
 (***************************** Weingarten Calculus **************************************)
 (****************************************************************************************)
@@ -199,31 +197,30 @@ WeingartenU::usage="To do";
 (****************************************************************************************)
 (**************** Algebra of Conjugacy classes and Traceless projectors *****************)
 (****************************************************************************************)
- 
 IdealSpace::usage="IdealSpace is booleen option for ConjugacyClassRelations. Let J(m) in B(n) be the space of diagram with at least m arcs.\
 Then there a chain of ideals in the Brauer algebra : J(n) in J(n-1) in ... in J(1) in J(0)=B(n).";
 FactorSpace::usage="FactorSpace is booleen option for ConjugacyClassProduct and ConjugacyClassRelations. One can define a product in the factor space consisting of \
 diagram with exaclty m arcs : J[m]=J(m)/J(m+1). For example the symmetric group algebra is B(n)/J(1).";
 ConjugacyClassProduct::usage="ConjugacyClassProduct[tab1,tab2], performs the product the conjugacy class sum associated to the brauer tableau tab1\
  with the one associated to the brauer tableau tab2.";
-ConjugacyClassRelations::usage="ConjugacyClassRelations[tab] returns all product rules between tab and others classes in the algebra.";
+ConjugacyClassRelations::usage="ConjugacyClassRelations[tab] returns all product relations between tab and others classes in the algebra of conjugacy classes.";
 SplittingIdempotent::usage="SplittingIdempotent[n,f] returns the splitting idempotent corresponding to the short sequence 0->J(f)->B(n)->B(n)/J(f).";
-TraceProjector::usage="TraceProjector[n,f] returns the f-trace projector in Brauer(n). The f-trace projector can be understood as the identity in J(f) the space of diagram with at least f arcs.";
-TraceLessProjector::usage="TraceLessProjector[n,f] returns the f-traceless projector in Brauer(n).";
-ToTraceTensor::usage="ToTraceTensor[tens,f] projects tens onto the space of f-trace tensors using TraceProjector[n,f] where n is the order of tens.";
-ToTracelessTensor::usage="ToTracelessTensor[tens,f] projects tens onto the space of f-traceless tensors using TraceLessProjector[n,f] where n is the order of tens.";
-
+TraceProjector::usage="TraceProjector[n,f] returns the f-trace projector in Brauer(n). TraceProjector[n,f,metric] expresses TraceProjector[n,f]\
+ in terms of metric. The f-trace projector can be understood as the identity in J(f) the space of diagram with at least f arcs.";
+TracelessProjector::usage="TracelessProjector[n,f] returns the f-traceless projector in Brauer(n). TracelessProjector[n,f,metric] expresses TracelessProjector[n,f]\
+ in terms of metric.";
 (****************************************************************************************)
-(*************************** Realization on tensors *************************************)
+(**************** Realisation of the brauer alegebra on tensors *************************)
 (****************************************************************************************)
 
-TensorToBrauer::usage="TensorToBrauerDiagram[metricexp] transforms products of metrics into Brauer diagrams or Brauer lists.";
-BrauerToTensor::usage="BrauerDiagramToTensor[diag/list,met] transforms a brauer diagram/list into a product of metrics met. 
+TensorToBrauer::usage="TensorToBrauer[metricexp] transforms products of metrics into Brauer diagrams or Brauer lists.";
+BrauerToTensor::usage="BrauerToTensor[diag/list,met] transforms a brauer diagram/list into a product of metrics met.\
 Vertex in the upper part are converted to UpIndex and vertex in the lower part are converted to DownIndex";
 
-(****************************************************************************************)
-(******************************* Walled Brauer part          ****************************)
-(****************************************************************************************)
+
+(*****************************************************************************************************)
+(******************************* Walled Brauer part : nothing is done yet ****************************)
+(*****************************************************************************************************)
 
 (****************************************************************************************)
 (******************************* Some Tools in developpement ****************************)
@@ -233,9 +230,6 @@ Vertex in the upper part are converted to UpIndex and vertex in the lower part a
 JucysMurphySymbol::usage="JucysMurphySymbol[order] generates a list of symbols for the Jucys-Murphys elements of B(order).";
 JucysMurphy::usage="JucysMurphy[order] generates a list of JM elements of B(order).";
 JucysMurphySymbolToList::usage="Convert the JM symbol into JM Brauerlist";
-(********** Pairs of Cycles for classes of Brauer with one arcs ***)
-SplitBrauerDiagram::usage="SplitBrauerDiagram[diag] decomposes diag into its sub diagrams having independent cycles. It can also be applied to Brauer Lists";
-ToCyclesGraph::usage="ToCyclesGraph[diag] returns the cycles digrams associated to the Brauer diagram diag. It can also be applied to Brauer Lists";
 
 
 (* ::Input::Initialization:: *)
@@ -308,6 +302,7 @@ BrauerDiagram[Times[n_?NumberQ,brauerlist_BrauerList],options:OptionsPattern[]]:
 BrauerDiagram[Times[n_Times,brauerlist_BrauerList],options:OptionsPattern[]]:=Times[n,BrauerDiagram[brauerlist,options]]
 BrauerDiagram[Times[n_Symbol,brauerlist_BrauerList],options:OptionsPattern[]]:=Times[n,BrauerDiagram[brauerlist,options]]
 BrauerDiagram[Times[n_Power,brauerlist_BrauerList],options:OptionsPattern[]]:=Times[n,BrauerDiagram[brauerlist,options]]
+BrauerDiagram[Times[brauerlist_BrauerList,n_Power],options:OptionsPattern[]]:=Times[n,BrauerDiagram[brauerlist,options]]
 
 
 (* ::Input::Initialization:: *)
@@ -315,12 +310,14 @@ BrauerDiagram[0,options:OptionsPattern[]]:=0;
 
 
 (* ::Input::Initialization:: *)
-BrauerDiagramToList[bgraph_BrauerGraph]:=BrauerList[Sort[List@@@EdgeList@(Sequence@@bgraph)]];
+ToBrauerList[bgraph_BrauerGraph]:=BrauerList[Sort[List@@@EdgeList@(Sequence@@bgraph)]];
 
 
 (* ::Input::Initialization:: *)
-BrauerDiagramToList[Times[n_,bgraph_BrauerGraph]]:=Times[n,BrauerDiagramToList[bgraph]];
-BrauerDiagramToList[exp_Plus]:=BrauerDiagramToList/@exp;
+ToBrauerList[Times[n_,bgraph_BrauerGraph]]:=Times[n,ToBrauerList[bgraph]];
+ToBrauerList[exp_Plus]:=ToBrauerList/@exp;
+ToBrauerList[btab_BrauerTab]:=ConjugacyClassSum[BrauerTabToRep[btab]];
+ToBrauerList[Times[n_,btab_BrauerTab]]:=Times[n,ToBrauerList[btab]];
 
 
 (* ::Input::Initialization:: *)
@@ -371,6 +368,13 @@ If[permnotation===Perm,
 Return[perm,Module],
 Return[TranslatePerm[perm,Cycles],Module]]
 ];
+
+BrauerToPerm[Times[n_?NumberQ,exp_Plus],options:OptionsPattern[]]:=Times[n,BrauerToBrauer[exp,options]];
+BrauerToPerm[Times[n_?NumberQ,perm_],options:OptionsPattern[]]:=Times[n,BrauerToPerm[perm,options]];
+BrauerToPerm[Times[n_Times,perm_],options:OptionsPattern[]]:=Times[n,BrauerToPerm[perm,options]];
+BrauerToPerm[Times[n_Symbol,perm_],options:OptionsPattern[]]:=Times[n,BrauerToPerm[perm,options]];
+BrauerToPerm[exp_Plus,options:OptionsPattern[]]:=BrauerToPerm[#,options]&/@exp;
+BrauerToPerm[n_?NumberQ,options:OptionsPattern[]]:=n;
 
 
 (* ::Input::Initialization:: *)
@@ -457,7 +461,7 @@ BrauerProduct[exp1_Times,exp2_Times,options:OptionsPattern[]]:=BrauerProduct[Exp
 
 
 (* ::Input::Initialization:: *)
-BrauerProduct[brauerdiag1_BrauerGraph,brauerdiag2_BrauerGraph,dbrauer___,options:OptionsPattern[]]:=BrauerProduct[BrauerDiagramToList[brauerdiag1],BrauerDiagramToList[brauerdiag2],dbrauer,options];
+BrauerProduct[brauerdiag1_BrauerGraph,brauerdiag2_BrauerGraph,dbrauer___,options:OptionsPattern[]]:=BrauerProduct[ToBrauerList[brauerdiag1],ToBrauerList[brauerdiag2],dbrauer,options];
 
 
 (* ::Input::Initialization:: *)
@@ -465,23 +469,23 @@ BrauerProduct[brauerdiag2_BrauerGraph,brauerdiag1_BrauerGraph,options:OptionsPat
 
 
 (* ::Input::Initialization:: *)
-Options[BrauerGenerators]:={Min->True}
-BrauerGenerators[degbrauer_Integer,options:OptionsPattern[]]:=Module[{range1,range2,cycles,SymGroupGen,arcs1,arcs2,arcs,modidentities,BrauerArcsGen,minQ},
-{minQ}=OptionValue[{BrauerGenerators},{options},{Min}];
+Options[BrauerGenerators]:={StrongGenSet->True}
+BrauerGenerators[degbrauer_Integer,options:OptionsPattern[]]:=Module[{range1,range2,cycles,SymGroupGen,arcs1,arcs2,arcs,modidentities,BrauerArcsGen,sgsQ},
+{sgsQ}=OptionValue[{BrauerGenerators},{options},{StrongGenSet}];
 range1=Range[degbrauer];
-If[minQ,
+If[sgsQ,
 Return[{PermToBrauer[Cycles[{1,2}],degbrauer],PermToBrauer[Cycles[range1],degbrauer],BrauerList[Sort@@ReplacePart[IdentityBrauer[degbrauer],{{1,1}->{1,2},{1,2}->{1,2}+degbrauer}]]}]
 ];
 range2=range1+degbrauer;
 cycles=Map[Cycles[#]&,Table[{i,i+1},{i,1,degbrauer-1}]];
 SymGroupGen=PermToBrauer[#,degbrauer]&/@cycles;
-If[symgroupQ,Return[{SymGroupGen},Module]];
+(*If[symgroupQ,Return[{SymGroupGen},Module]];*)
 arcs1=Table[{i,i+1},{i,1,degbrauer-1}];
 arcs2=arcs1+degbrauer;
 arcs=MapThread[{#1,#2}&,{arcs1,arcs2}];
 modidentities=Map[Drop[Sequence@@IdentityBrauer[degbrauer],{#[[1,1]],#[[1,2]]}]&,arcs];
 BrauerArcsGen=MapThread[Sort[Join[#1,#2]]&,{modidentities,arcs}];
-{SymGroupGen,BrauerList/@BrauerArcsGen}
+Join[SymGroupGen,BrauerList/@BrauerArcsGen]
 ]
 
 
@@ -595,9 +599,9 @@ If[msym===Symmetric,
 yprojector=dimdiag/(ndiag!)*PermProduct[YS,YA],
 yprojector=dimdiag/(ndiag!)*PermProduct[YA,YS]];
 Which[SameQ[output,Cycles],
-Return[yprojector,Module],
+Return[SortCycles[yprojector],Module],
 SameQ[output,BrauerList],
-Return[PermToBrauer[yprojector,ndiag],Module]
+Return[PermToBrauer[SortCycles[yprojector],ndiag],Module]
 ]
 ];
 
@@ -873,7 +877,7 @@ If[normalize,Return[DeleteDuplicates[listbrauerconj],Block],
 Return[listbrauerconj,Block]];
 ];
 (*** Input BrauerGraph and BrauerTab ***)
-ConjugacyClass[brauerdiag_BrauerGraph,options:OptionsPattern[]]:=ConjugacyClass[BrauerDiagramToList@brauerdiag,options];
+ConjugacyClass[brauerdiag_BrauerGraph,options:OptionsPattern[]]:=ConjugacyClass[ToBrauerList@brauerdiag,options];
 ConjugacyClass[brauertab_BrauerTab,options:OptionsPattern[]]:=ConjugacyClass[BrauerTabToRep@brauertab,options];
 ConjugacyClass[perm_?SymmetricGroupQ,options:OptionsPattern[]]:=ConjugacyClass[BrauerToPerm[perm,PermNotation->Perm],options];
 (*** If BrauerList belong to symmetric group we the orbit of the permutation ***)
@@ -1069,6 +1073,14 @@ WeingartenO[btab_BrauerTab]:=WeingartenO@@BrauerTabToInputWeingarten[btab];
 
 
 (* ::Input::Initialization:: *)
+IdentityTab[n_?IntegerQ]:=BrauerTab[Table[{3},n]]
+
+
+(* ::Input::Initialization:: *)
+IdentityTabQ[brauertab_BrauerTab]:=With[{n=Length[Flatten[Sequence@@brauertab]]},If[SameQ[brauertab,IdentityTab[n]],True,False]];
+
+
+(* ::Input::Initialization:: *)
 Options[ConjugacyClassProduct]:={FactorSpace->False}
 ConjugacyClassProduct[tab1_,tab2_,options:OptionsPattern[]]:=Module[{deg=Length[Flatten[Sequence@@tab1]],rep1=BrauerTabToRep[tab1],rep2=BrauerTabToRep[tab2],alltabs,sum1,sum2,rulereptotab,n1arcs,n2arcs,facspace,maxarcsdeg,minarcs12,maxarcs12,maxprodarcs},
 {facspace}=OptionValue[{ConjugacyClassProduct},{options},{FactorSpace}];
@@ -1097,6 +1109,34 @@ If[deg==2,
 Return[BrauerProduct[sum1,sum2,ConjugacyClass->True]/.rulereptotab],Module];
 Collect[Select[BrauerProduct[sum1,sum2,ConjugacyClass->True]/.rulereptotab,(Head[Last@Level[#,1]]===BrauerTab||Head@#===BrauerTab)&],Flatten@BrauerTableaux[deg]]
 ];
+
+
+(* ::Input::Initialization:: *)
+ConjugacyClassProduct[tab1_BrauerTab,tab2_?IdentityTabQ,options:OptionsPattern[]]:=tab1;
+ConjugacyClassProduct[tab1_?IdentityTabQ,tab2_BrauerTab,options:OptionsPattern[]]:=tab2;
+
+
+(* ::Input::Initialization:: *)
+ConjugacyClassProduct[list1_List,list2_List,options:OptionsPattern[]]:=Plus@@(ConjugacyClassProduct[#[[1]],#[[2]],options]&/@Tuples[{list1,list2}]);
+
+
+(* ::Input::Initialization:: *)
+ConjugacyClassProduct[exp1_Plus,exp2_Plus,options:OptionsPattern[]]:=ConjugacyClassProduct[List@@exp1,List@@exp2,options];
+ConjugacyClassProduct[brauerlist2_BrauerTab,exp_Plus,options:OptionsPattern[]]:=ConjugacyClassProduct[brauerlist2,#,options]&/@exp;
+ConjugacyClassProduct[exp_Plus,brauerlist2_BrauerTab,options:OptionsPattern[]]:=ConjugacyClassProduct[#,brauerlist2,options]&/@exp;
+ConjugacyClassProduct[brauerlist2_BrauerTab,Times[n_?NumberQ,brauerlist1_BrauerList],options:OptionsPattern[]]:=Times[n,ConjugacyClassProduct[brauerlist2,brauerlist1,options]];
+ConjugacyClassProduct[Times[n_?NumberQ,brauerlist1_BrauerTab],brauerlist2_BrauerTab,options:OptionsPattern[]]:=Times[n,ConjugacyClassProduct[brauerlist1,brauerlist2,options]];
+ConjugacyClassProduct[Times[n1_?NumberQ,brauerlist1_BrauerTab],Times[n2_?NumberQ,brauerlist2_BrauerList],options:OptionsPattern[]]:=Times[n1*n2,BrauerProduct[brauerlist1,brauerlist2,options]];
+ConjugacyClassProduct[brauerlist2_BrauerTab,Times[n_Symbol,brauerlist1_BrauerTab],options:OptionsPattern[]]:=Times[n,ConjugacyClassProduct[brauerlist2,brauerlist1,options]];
+ConjugacyClassProduct[Times[n_Symbol,brauerlist1_BrauerTab],brauerlist2_BrauerTab,options:OptionsPattern[]]:=Times[n,ConjugacyClassProduct[brauerlist1,brauerlist2,options]];
+ConjugacyClassProduct[Times[n1_Symbol,brauerlist1_BrauerTab],Times[n2_Symbol,brauerlist2_BrauerTab],options:OptionsPattern[]]:=Times[n1*n2,ConjugacyClassProduct[brauerlist1,brauerlist2,options]];
+ConjugacyClassProduct[Times[n1_Times,brauerlist1_BrauerTab],Times[n2_Times,brauerlist2_BrauerTab]]:=Times[n1*n2,ConjugacyClassProduct[brauerlist1,brauerlist2]];
+ConjugacyClassProduct[Times[n1_Times,brauerlist1_BrauerTab],brauerlist2_BrauerTab]:=Times[n1,ConjugacyClassProduct[brauerlist1,brauerlist2]];
+ConjugacyClassProduct[brauerlist1_BrauerTab,Times[n2_Times,brauerlist2_BrauerTab]]:=Times[n2,ConjugacyClassProduct[brauerlist1,brauerlist2]];
+ConjugacyClassProduct[Times[n1_Times,brauerlist1_BrauerTab],n2_*brauerlist2_BrauerTab]:=Times[n1*n2,ConjugacyClassProduct[brauerlist1,brauerlist2]];
+ConjugacyClassProduct[n1_*brauerlist1_BrauerTab,Times[n2_Times,brauerlist2_BrauerTab]]:=Times[n2*n1,ConjugacyClassProduct[brauerlist1,brauerlist2]];
+ConjugacyClassProduct[n1_*brauerlist1_BrauerTab,Times[n2_Times,brauerlist2_BrauerTab]]:=Times[n2*n1,ConjugacyClassProduct[brauerlist1,brauerlist2]];
+ConjugacyClassProduct[exp1_Times,exp2_Times,options:OptionsPattern[]]:=ConjugacyClassProduct[Expand[exp1],Expand[exp2],options];
 
 
 (* ::Input::Initialization:: *)
@@ -1199,40 +1239,23 @@ TraceProjector[deg_,0]:=BrauerTab[ConstantArray[{3},deg]];
 
 
 (* ::Input::Initialization:: *)
-TraceLessProjector[deg_,narcs_]:=Module[{},
+TracelessProjector[deg_,narcs_]:=Module[{},
 If[narcs==1,
 Return[SplittingIdempotent[deg,narcs],Module]
 ];
-SplittingIdempotent[deg,narcs-1]-SplittingIdempotent[deg,narcs]
+SplittingIdempotent[deg,narcs]-SplittingIdempotent[deg,narcs-1]
 ];
 
 
 (* ::Input::Initialization:: *)
-ToTracelessTensor[tensor_?xTensorQ,inds___List,f___Integer,metric_?MetricQ]:=Module[{deg=Length@inds,projector,manifold=Sequence@@DependenciesOfTensor[metric],newinds},
-newinds=DownIndex/@Take[IndicesOfVBundle[TangentBundleOfManifold[manifold]][[1]],Length[inds]];
-projector=(BrauerToTensor[TraceLessProjector[deg,f],metric])/.dtrace->DimOfManifold[manifold];
-ChangeFreeIndices[Collect[SameDummies[Map[ContractMetric[#,metric]&,(tensor@@newinds*projector//Distribute)]],{_metric,_delta,_tensor},Factor],inds]
-];
-ToTracelessTensor[tensor_?xTensorQ,inds___List,f___Integer]:=ToTracelessTensor[tensor,inds,f,$Metrics[[1]]];
-ToTracelessTensor[tensor_?xTensorQ,inds___List]:=ToTracelessTensor[tensor,inds,1];
-ToTracelessTensor[tensor_,f___Integer,metric_?MetricQ]:=ToTracelessTensor[Head@tensor,List@@tensor,f,metric];
-ToTracelessTensor[tensor_,f___Integer]:=ToTracelessTensor[Head@tensor,List@@tensor,f,$Metrics[[1]]];
-ToTracelessTensor[tensor_,metric_?MetricQ]:=ToTracelessTensor[Head@tensor,List@@tensor,1,metric];
-ToTracelessTensor[tensor_]:=ToTracelessTensor[Head@tensor,List@@tensor,1,$Metrics[[1]]];
+TracelessProjector[deg_,f_,metric_?MetricQ]:=Module[{indQ=If[InducedFrom[metric]===Null,False,True]},If[!indQ,Return[(BrauerToTensor[TracelessProjector[deg,f],metric]),Module],Return[(BrauerToTensor[TracelessProjector[deg,f],metric])/.DimOfManifold[Sequence@@DependenciesOfTensor[metric]]->(DimOfManifold[Sequence@@DependenciesOfTensor[metric]]-1),Module]]];
+TraceProjector[deg_,f_,metric_?MetricQ]:=Module[{indQ=If[InducedFrom[metric]===Null,False,True]},If[!indQ,Return[(BrauerToTensor[TraceProjector[deg,f],metric]),Module],Return[(BrauerToTensor[TraceProjector[deg,f],metric])/.DimOfManifold[Sequence@@DependenciesOfTensor[metric]]->DimOfManifold[Sequence@@DependenciesOfTensor[metric]]-1,Module]]];
 
 
 (* ::Input::Initialization:: *)
-ToTraceTensor[tensor_?xTensorQ,inds___List,f___Integer,metric_?MetricQ]:=Module[{deg=Length@inds,projector,manifold=Sequence@@DependenciesOfTensor[metric],newinds},
-newinds=DownIndex/@Take[IndicesOfVBundle[TangentBundleOfManifold[manifold]][[1]],Length[inds]];
-projector=(BrauerToTensor[TraceProjector[deg,f],metric])/.dtrace->DimOfManifold[manifold];
-ChangeFreeIndices[Collect[SameDummies[Map[ContractMetric[#,metric]&,(tensor@@newinds*projector//Distribute)]],{_metric,_delta,_tensor},Factor],inds]
-];
-ToTraceTensor[tensor_?xTensorQ,inds___List,f___Integer]:=ToTraceTensor[tensor,inds,f,$Metrics[[1]]];
-ToTraceTensor[tensor_?xTensorQ,inds___List]:=ToTraceTensor[tensor,inds,1];
-ToTraceTensor[tensor_,f___Integer,metric_?MetricQ]:=ToTraceTensor[Head@tensor,List@@tensor,f,metric];
-ToTraceTensor[tensor_,f___Integer]:=ToTraceTensor[Head@tensor,List@@tensor,f,$Metrics[[1]]];
-ToTraceTensor[tensor_,metric_?MetricQ]:=ToTraceTensor[Head@tensor,List@@tensor,1,metric];
-ToTraceTensor[tensor_]:=ToTraceTensor[Head@tensor,List@@tensor,1,$Metrics[[1]]];
+(* Borrowed from Francesco Torsello: See  arXiv:1904.10464   *)
+SafeCanonical[e_]:=ToCanonical[e, UseMetricOnVBundle -> None]
+SafeMakeRule[e_List]:=MakeRule[e,MetricOn->None,ContractMetrics->False]
 
 
 (* ::Input::Initialization:: *)
@@ -1246,9 +1269,10 @@ BrauerProduct[0,d_,options:OptionsPattern[]]:=0
 
 (* ::Input::Initialization:: *)
 Options[JucysMurphy]:={SymmetricGroupOnly->False}
-JucysMurphy[order_,options:OptionsPattern[]]:=Module[{brauergen,y1,y2,ytemp,jlist,symgroupQ},
+JucysMurphy[order_,options:OptionsPattern[]]:=Module[{brauergen,y1,y2,ytemp,jlist,symgroupQ,brauergen0},
 {symgroupQ}=OptionValue[{JucysMurphy},{options},{SymmetricGroupOnly}];
-brauergen=BrauerGenerators[order,Min->False];
+brauergen0=BrauerGenerators[order,StrongGenSet->False];
+brauergen=Partition[brauergen0,Length[brauergen0]/2];
 y1=0;
 jlist={y1};
 ytemp=y1;
@@ -1274,29 +1298,6 @@ MapThread[#1->#2&,{jmheads,jmlist}]
 
 
 (* ::Input::Initialization:: *)
-Options[SymmetricGroupAverage]:={NormalizeClass->False,OutputBrauer->List}
-SymmetricGroupAverage[brauerlist_BrauerList,indexstart_Integer,indexend_Integer,options:OptionsPattern[]]:=Block[{blist=Sequence@@brauerlist,orderdiag,rangea,rangeb,range1,range2,perm1,perm2,cycles1,cycles2,idperm2,listperma,listperm,listconjedge,listbrauerdiag,ruleindperm1,ruleindperm2,normalize,output},
-{normalize}=OptionValue[{SymmetricGroupAverage},{options},{NormalizeClass}];
-{output}=OptionValue[{SymmetricGroupAverage},{options},{OutputBrauer}];
-orderdiag=Length[blist];
-rangea=Range[orderdiag];
-rangeb=rangea+orderdiag;
-range1=Range[indexstart,indexend];
-range2=Range[orderdiag+indexstart,orderdiag+indexend];
-(*** Handling permutations ***)
-perm1=Map[Join[Range[indexstart-1],#,Range[indexend+1,orderdiag]]&,Permutations[range1]];
-perm2=Map[Join[Map[#+orderdiag&,Range[indexstart-1]],#,Map[#+orderdiag&,Range[indexend+1,orderdiag]]]&,Permutations[range2]];
-cycles1=PermutationCycles/@perm1;
-cycles2=PermutationCycles/@(Join[rangea,#]&/@perm2);
-listperm=MapThread[PermutationReplace[#1,#2]&,{PermutationReplace[Flatten@brauerlist,cycles1],cycles2}];
-(*** List of edge for all conjuagte diagrams **)
-listconjedge=Map[Sort,listperm,2];
-If[normalize,Return[DeleteDuplicates[listconjedge],Block],
-Return[listconjedge,Block]];
-]
-
-
-(* ::Input::Initialization:: *)
 Options[TensorToBrauer]:={OutputBrauer->List,ImageSize->Small}
 TensorToBrauer[exp_,options:OptionsPattern[]]:=Module[{sortedindofexp,unsortedindofexp,orderbrauer,indlist,indtonum,edgelist,range1,range2,arcsup,arcsdown,lines,brauerdiagram,imagesize,output},
 {imagesize}=OptionValue[{TensorToBrauer},{options},{ImageSize}];
@@ -1308,39 +1309,44 @@ orderbrauer=Length[sortedindofexp]/2;
 indlist=List@@sortedindofexp;
 indtonum=MapThread[#1->#2&,Join[{indlist},{Range[2*orderbrauer]}]];
 edgelist=Map[Sort,Partition[List@@unsortedindofexp/.indtonum,2]];
-range1=Range[orderbrauer];
+(*range1=Range[orderbrauer];
 range2=range1+orderbrauer;
 arcsup=EdgesToArcsUpList[range1,edgelist];
 arcsdown=EdgesToArcsDownList[range2,edgelist];
-lines=EdgesToLinesList[range1,edgelist];
+lines=EdgesToLinesList[range1,edgelist];*)
 SetIndexSortPriorities["free","lexicographic","up"];
 If[output===Graph,
 If[orderbrauer==1&&GreaterEqual[imagesize,10],imagesize=2.5,If[orderbrauer==2&&GreaterEqual[imagesize,40],imagesize=20]];
-brauerdiagram=BrauerGraph[BrauerDiagram[orderbrauer,arcsup,arcsdown,lines, ImageSize ->imagesize]];
+brauerdiagram=BrauerDiagram[orderbrauer,Sort@edgelist, ImageSize ->imagesize];
 Return[brauerdiagram,Module]
 ,
-Return[BrauerList[{arcsup,arcsdown,lines}],Module]
+Return[BrauerList[Sort@edgelist],Module]
 ];
 ]
 TensorToBrauer[a_Plus,options:OptionsPattern[]]:=Plus@@Map[TensorToBrauer[#]&,List@@a]
-TensorToBrauer[Times[n_?NumberQ,a_]]:=Times[n,MetricToBrauer[a]];
+TensorToBrauer[Times[n_?NumberQ,a_]]:=Times[n,TensorToBrauer[a]];
+TensorToBrauer[Times[a_,n_Power]]:=Times[n,TensorToBrauer[a]];
+TensorToBrauer[Power[n_,a_]]:=Times[n,TensorToBrauer[a]];
 
 
 (* ::Input::Initialization:: *)
-BrauerToTensor[expbl_BrauerList,metric_?MetricQ]:=Module[{exp=Sequence@@expbl,orderbrauer,indices,numtoind,indiceslist,metriclist,manifold=Sequence@@DependenciesOfTensor[metric]},
+BrauerToTensor[expbl_BrauerList,metric_?MetricQ]:=Module[{exp=Sequence@@expbl,orderbrauer,indices,numtoind,numtoind1,numtoind2,indiceslist,metriclist,manifold=Sequence@@DependenciesOfTensor[metric]},
+With[{invmetric=Inv[metric]},
 orderbrauer=Length[exp];
 SetIndexSortPriorities["positional","free","dummy"];
 indices=Partition[Take[IndicesOfVBundle[TangentBundleOfManifold[manifold]][[1]],2*orderbrauer],orderbrauer];
 indices[[2]]=Map[ChangeIndex[#]&,indices[[2]]];
-numtoind=MapThread[#1->#2&,{Range[2*orderbrauer],Flatten@indices}];
-indiceslist=exp/.numtoind;
-metriclist=Apply[metric,indiceslist,{1}];
+numtoind1=MapThread[#1->#2&,{Range[orderbrauer],indices[[1]]}];
+numtoind2=MapThread[#1->#2&,{Range[orderbrauer+1,2*orderbrauer],indices[[2]]}];
+indiceslist=exp/.numtoind1/.numtoind2;
+metriclist=Apply[If[UpIndexQ[#1]&&DownIndexQ[#2],delta[#1,#2],If[UpIndexQ[#1]&&UpIndexQ[#2],invmetric[#1,#2],metric[#1,#2]]]&,indiceslist,{1}];
 (Times@@metriclist)
+]
 ]
 
 
 (* ::Input::Initialization:: *)
-BrauerToTensor[exp_BrauerGraph,metric_?MetricQ]:=BrauerToTensor[BrauerDiagramToList[exp],metric];
+BrauerToTensor[exp_BrauerGraph,metric_?MetricQ]:=BrauerToTensor[ToBrauerList[exp],metric];
 BrauerToTensor[Brauertab_BrauerTab,metric_?MetricQ]:=BrauerToTensor[ConjugacyClassSum[BrauerTabToRep[Brauertab]],metric];
 
 
@@ -1368,6 +1374,3 @@ BrauerToTensor[Brauertab_BrauerTab]:=BrauerToTensor[ConjugacyClassSum[BrauerTabT
 (*Protect[DefIRDTensors]*)
 End[];
 EndPackage[];
-
-
-
