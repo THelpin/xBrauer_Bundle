@@ -445,7 +445,7 @@ BrauerToTensorRiemann[cycle_System`Cycles,metric_,inds_List]:=BrauerToTensorRiem
 BrauerToTensorSymplectic0[x:BrauerList[list_],symplecticform_,inds_]:=Module[{rule},
 With[{invsymplecticform=Inv[symplecticform],n=Length[list]},
 If[Length[inds]=!=2*n,Throw[Print["The number of indices is not compatible the Brauer diagrams"]]];
-Times@@MapThread[If[BrauerAlgebra`Private`ArcUpQ[#2],Inv[symplecticform]@@#1,If[BrauerAlgebra`Private`LineQ[#2],delta@@Reverse[#1],symplecticform@@#1]]&,{list/.Thread[Rule[Join[Range[n],DownInteger[Range[n]]],inds]],list}]
+Times@@MapThread[If[xAct`BrauerAlgebra`Private`ArcUpQ[#2],Inv[symplecticform]@@#1,If[xAct`BrauerAlgebra`Private`LineQ[#2],delta@@Reverse[#1],symplecticform@@#1]]&,{list/.Thread[Rule[Join[Range[n],DownInteger[Range[n]]],inds]],list}]
 ]
 ];
 BrauerToTensorSymplectic[x_BrauerList,symplecticform_,inds_List]:=SignatureBrauer[x]*BrauerToTensorSymplectic0[x,symplecticform,inds];
@@ -671,21 +671,21 @@ TracePermuteIndices[expr_,indices_List,0,metric_]:=0;
 TracePermuteIndices[0,rest___,options:OptionsPattern[]]:=0;
 (********* TracePermuteIndices with input a permutation ********)
 TracePermuteIndices0[expr_,indices_List,cycle_System`Cycles,metric_]:=With[{iperm=InversePermutation[cycle],support=PermutationSupport[cycle]},ReplaceIndex[expr,Thread[indices[[support]]->indices[[PermutationReplace[support,iperm]]]]]]
-TracePermuteIndices0[expr_,indices_List,d_BrauerList?SymmetricGroupQ,metric_]:=If[SymplecticFormQ[metric],SignatureBrauer[d]*ReplaceIndex[expr,Map[indices[[BrauerAlgebra`Private`UpInteger[#[[2]]]]]->indices[[#[[1]]]]&,Sequence@@d]],ReplaceIndex[expr,Map[indices[[BrauerAlgebra`Private`UpInteger[#[[2]]]]]->indices[[#[[1]]]]&,Sequence@@d]]]
+TracePermuteIndices0[expr_,indices_List,d_BrauerList?SymmetricGroupQ,metric_]:=If[SymplecticFormQ[metric],SignatureBrauer[d]*ReplaceIndex[expr,Map[indices[[xAct`BrauerAlgebra`Private`UpInteger[#[[2]]]]]->indices[[#[[1]]]]&,Sequence@@d]],ReplaceIndex[expr,Map[indices[[xAct`BrauerAlgebra`Private`UpInteger[#[[2]]]]]->indices[[#[[1]]]]&,Sequence@@d]]]
 (************************************************************************)
 (********* TracePermuteIndices with input a Brauerlist with arcs ********)
 (************************************************************************)
 
 (********************* Convention Below : diagram acting on tensor from below : not the convention of xPerm *****************)
 
-(*TracePermuteIndicesReplacementRule[indices_List,d_BrauerList]:=With[{n=Length@@d},Flatten[Map[If[UpArcQ[#,n],With[{dummy=UpIndex[DummyAs[indices[[#[[1]]]]]]},{indices[[#[[1]]]]->-dummy,indices[[#[[2]]]]->dummy}],If[BrauerAlgebra`Private`LineQ[#,n],indices[[#[[1]]]]->indices[[#[[2]]-n]],Nothing]]&,Sequence@@d]]];
+(*TracePermuteIndicesReplacementRule[indices_List,d_BrauerList]:=With[{n=Length@@d},Flatten[Map[If[UpArcQ[#,n],With[{dummy=UpIndex[DummyAs[indices[[#[[1]]]]]]},{indices[[#[[1]]]]->-dummy,indices[[#[[2]]]]->dummy}],If[xAct`BrauerAlgebra`Private`LineQ[#,n],indices[[#[[1]]]]->indices[[#[[2]]-n]],Nothing]]&,Sequence@@d]]];
 TracePermuteIndicesMetricList[metric_,indices_List,d_BrauerList]:=With[{n=Length@@d},Flatten[Map[If[DownArcQ[#,n],metric@@indices[[#-n]],Nothing]&,Sequence@@d]]]*)
 
 (********************* Convention Above : diagram acting on tensor from above : the convention of xPerm *****************)
 
-TracePermuteIndicesReplacementRule[indices_List,x:BrauerList[d_]]:=Flatten[Map[If[BrauerAlgebra`Private`ArcDownQ[#],With[{dummy=UpIndex[DummyAs[indices[[BrauerAlgebra`Private`UpInteger[#[[1]]]]]]]},{indices[[BrauerAlgebra`Private`UpInteger[#[[1]]]]]->-dummy,indices[[BrauerAlgebra`Private`UpInteger[#[[2]]]]]->dummy}],If[BrauerAlgebra`Private`LineQ[#],indices[[BrauerAlgebra`Private`UpInteger[#[[2]]]]]->indices[[#[[1]]]],Nothing]]&,d]];
+TracePermuteIndicesReplacementRule[indices_List,x:BrauerList[d_]]:=Flatten[Map[If[xAct`BrauerAlgebra`Private`ArcDownQ[#],With[{dummy=UpIndex[DummyAs[indices[[xAct`BrauerAlgebra`Private`UpInteger[#[[1]]]]]]]},{indices[[xAct`BrauerAlgebra`Private`UpInteger[#[[1]]]]]->-dummy,indices[[xAct`BrauerAlgebra`Private`UpInteger[#[[2]]]]]->dummy}],If[xAct`BrauerAlgebra`Private`LineQ[#],indices[[xAct`BrauerAlgebra`Private`UpInteger[#[[2]]]]]->indices[[#[[1]]]],Nothing]]&,d]];
 
-TracePermuteIndicesMetricList[metric_,indices_List,x:BrauerList[d_]]:=Flatten[Map[If[BrauerAlgebra`Private`ArcUpQ[#],metric@@indices[[#]],Nothing]&,d]];
+TracePermuteIndicesMetricList[metric_,indices_List,x:BrauerList[d_]]:=Flatten[Map[If[xAct`BrauerAlgebra`Private`ArcUpQ[#],metric@@indices[[#]],Nothing]&,d]];
 
 
 TracePermuteIndices0[expr_,indices_List,d_BrauerList,metric_]:=If[SymplecticFormQ[metric],SignatureBrauer[d]*Times@@TracePermuteIndicesMetricList[metric,indices,d]*ReplaceIndex[expr,TracePermuteIndicesReplacementRule[indices,d]],Times@@TracePermuteIndicesMetricList[metric,indices,d]*ReplaceIndex[expr,TracePermuteIndicesReplacementRule[indices,d]]];
@@ -693,7 +693,7 @@ TracePermuteIndices0[expr_,indices_List,d_BrauerList,metric_]:=If[SymplecticForm
 (**************************************************************************************************************************)
 
 (*TracePermuteIndices[expr_,indices_List,x_Plus,metric_]:=(TracePermuteIndices[expr,indices,#1,metric]&)/@x;
-TracePermuteIndices[expr_,indices_List,k_*(x_System`Cycles|x_BrauerList|x_Bracelets|x_Plus),metric_]/;TrueQ[BrauerAlgebra`Private`ScalarExpressionForConjugacyClassProductQ[k,DimOfManifold@@DependenciesOfTensor[metric]]]:=k*TracePermuteIndices[expr,indices,x,metric]*)
+TracePermuteIndices[expr_,indices_List,k_*(x_System`Cycles|x_BrauerList|x_Bracelets|x_Plus),metric_]/;TrueQ[xAct`BrauerAlgebra`Private`ScalarExpressionForConjugacyClassProductQ[k,DimOfManifold@@DependenciesOfTensor[metric]]]:=k*TracePermuteIndices[expr,indices,x,metric]*)
 
 (*************************************************************)
 (********* TracePermuteIndices with input a Bracelets ********)
