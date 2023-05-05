@@ -482,7 +482,7 @@ BrauerToTensor[x_BrauerList,options:OptionsPattern[]]:=With[{symplecticQ1=Symple
 
 (*** SymH notation ***)
 BrauerToTensorSymRiemann[x_Bracelets,metric_?MetricQ,inds_List]:=Module[{rep=BrauerToTensor[ToRepresentativeDiagram[x],metric,inds],n=2*Length[Flatten@@x],sym,ruleindices,list1=Normal@PositionIndex[UpIndex/@inds],symGroup,supportstring,heads},
-With[{indices=IndicesOf[AIndex]@rep,numofdiagram=BrauerAlgebra`Private`SizeOfConjugacyClass[x]},
+With[{indices=IndicesOf[AIndex]@rep,numofdiagram=xAct`BrauerAlgebra`Private`SizeOfConjugacyClass[x]},
 heads=Map[If[(UpIndexQ[#[[1]]]&&DownIndexQ[#[[2]]])||(DownIndexQ[#[[1]]]&&UpIndexQ[#[[2]]]),delta,If[(UpIndexQ[#[[1]]]&&UpIndexQ[#[[2]]]),Inv[metric],metric]]&,Partition[List@@indices,2]];
 ruleindices=Map[#[[1,1]]->#[[2,1]]&,(Normal@PositionIndex[UpIndex/@List@@indices])/.list1];
 sym=Thread[List[Subsets[Range[n/2],{2}],Subsets[Range[n/2+1,n],{2}]]]/.ruleindices;
