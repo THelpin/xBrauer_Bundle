@@ -816,84 +816,133 @@ CharacterSymmetricGroup2[partition_,type_:"id"]:=If[type==="id",CharacterAtId[pa
 
 
 (* ::Input::Initialization:: *)
-PartitionTruncate[p_]:=DeleteCases[p,0];
-PartitionTruncate[p_]:=If[p=={}||p[[-1]]!=0,p,PartitionTruncate[Take[p,Length[p]-1]]];
-PartitionLength[p_]:=Length[PartitionTruncate[p]]
+(******* Adapted Pieri Rule for Littlewood Richardson rule at step newletter>1 ***)
+PieriRuleLR[\[Mu]:{1,k___},\[Lambda]_,newletter_]:=With[{lmax=Length[\[Lambda]]},
+If[Length[\[Mu]]>lmax,Nothing,
+(******* To do : dependance on newletter *******)
+DeleteDuplicates[Map[ReverseSort[#+\[Lambda]]&,Permutations[PadRight[\[Mu],lmax]]]]
+]
+]
+PieriRuleLR[\[Mu]:{1,k___},\[Lambda]_,newletter_]:=DeleteDuplicates[Map[ReverseSort[#+\[Lambda]]&,Permutations[PadRight[\[Mu],Length[\[Lambda]]]]]]
+
+PieriRuleLR[{1},\[Lambda]_,newletter_]:= Append[Table[Which[r>=newletter && \[Lambda][[r - 1]] > \[Lambda][[r]], MapAt[# + 1 &, \[Lambda], r],True, Nothing]
+     , {r, Length[\[Lambda]]}],Append[\[Lambda], 1]];
+PieriRuleLR[\[Mu]:{i_},\[Lambda]_,newletter_]:=Select[TransposePartition/@PieriRuleLR[TransposePartition[\[Mu]],TransposePartition[\[Lambda]],newletter],#[[;;newletter-1]]==\[Lambda][[;;newletter-1]]&]
 
 
 (* ::Input::Initialization:: *)
-PartitionEval[p_,i_]:=If[i<=Length[p],p[[i]],0]
-PartitionValidate[p_]:=If[p=={}||And@@Table[p[[i]]>=p[[i+1]],{i,1,Length[p]-1}],True,Print["Partition values must descend"];False]
+(*** Test if word of tableau is a Lattice permutation ***)
+LRTableauQ[tableau_,newletter_]:=If[LatticeWordQ[Reverse[Select[Flatten[Reverse[tableau]],#>=newletter-1&]],newletter],tableau,Nothing]
+(********* The same subword appears several time in a computation so we save it and at the end of the computation we delete the stored data : see LittlewoodRichardsonRule ***)
+LatticeWordQ[w_,newletter_]:=LatticeWordQ[w,newletter]=Block[{test=True,i=1,lw=Length[w],letter=newletter-1},(*Print[w];*)While[test&&i<=lw,If[w[[i]]==newletter,test=Count[Take[w,i],letter]>=Count[Take[w,i],newletter]];i++];
+(*Print[test];*)
+test
+]
 
 
 (* ::Input::Initialization:: *)
-LRWord[t_]:=Join@@Table[Join@@Table[Table[j-1,{PartitionEval[t[[j]],i]-PartitionEval[t[[j-1]],i]}],{j,Length[t],2,-1}],{i,1,Length[t[[-1]]]}]
+NextTableau[previoustableau_,nextpartition_,newletter_]:=LRTableauQ[Join[previoustableau,Map[ConstantArray[newletter,#]&,nextpartition-PadRight[Length/@previoustableau,Length[nextpartition]]],2],newletter]
 
 
 (* ::Input::Initialization:: *)
-(*TestWord[LRWord[t]] returns true if the tableau t is a lattice partition in Macdonald's sense*)TestWord[w_]:=And@@Table[If[w[[i]]>1,Length[Select[Take[w,i],#==w[[i]]-1&]]>=Length[Select[Take[w,i],#==w[[i]]&]],True],{i,1,Length[w]}]
+(******* Initialization ****)
+LRTableauxFirst[\[Lambda]_,\[Mu]_,n_]:=Join[ConstantArray[0,#]&/@\[Lambda],TakeList[ConstantArray[1,n],\[Mu]-PadRight[\[Lambda],Length[\[Mu]]]],2]
+LRTableaux[\[Lambda]_,{n_},1]:=Map[LRTableauxFirst[\[Lambda],#,n]&,PieriRule[{n},\[Lambda]]]
 
 
 (* ::Input::Initialization:: *)
-(*PartitionCompare[p_,q_]:=(PartitionLength[p]<=PartitionLength[q]&&(And@@Table[p[[i]]<=q[[i]],{i,1,PartitionLength[p]}]))*)
+LRTableaux[\[Lambda]_,\[Nu]_,newletter_]:=Flatten[Map[With[{tableau=#},Map[NextTableau[tableau,#,newletter]&,PieriRuleLR[{Last[\[Nu]]},Length/@tableau,newletter]]]&,LRTableaux[\[Lambda],Most[\[Nu]],newletter-1]],1]
 
 
 (* ::Input::Initialization:: *)
-PartitionStrictlyCompare[p_,q_]:=(IncludedPartitionQ[q,p]&&PartitionLength[q]<=PartitionLength[p]+1&&(And@@Table[p[[i]]==q[[i]]||q[[i+1]]<p[[i]]+1,{i,1,PartitionLength[q]-1}]))
-
-
-(* ::Input::Initialization:: *)
-SubstractPartitions[p_,q_]:=With[{lp=Length[p],lq=Length[q]},If[lp==lq,p-q,If[lp>lq,p-PadRight[q,lp],PadRight[p,lq]-q]]]
-PartitionOrder[p_,q_]:=If[PartitionTruncate[p]==PartitionTruncate[q],0,If[First[Select[SubstractPartitions[p,q],#!=0&]]>0,1,-1]];
-
-
-(* ::Input::Initialization:: *)
-AppendStrictTableau[t_,n_]:=(Append[t,#]&/@Select[IntegerPartitions[(Plus@@t[[-1]])+n],PartitionStrictlyCompare[t[[-1]],#]&])
-AppendStrictTableauList[l_,n_]:=Join@@(AppendStrictTableau[#,n]&/@l)
-
-
-(* ::Input::Initialization:: *)
-(*LRCandidates generates all tableaux of the form {p_0,p_1,p_2,...,p_k},where p_0=p and Length[p_i]-Length[p_{i-1}]=q_i.*)
-LRCandidates[p_,q_]:=Fold[AppendStrictTableauList,{{p}},q];
-(*LRSequence generates the sequence of tableaux appearing during the process of the Littlewood-Richardson rule.*)
-LRSequence[p_,q_]:=Select[LRCandidates[PartitionTruncate[p],PartitionTruncate[q]],TestWord[LRWord[#]]&](**)
-
-
-(* ::Input::Initialization:: *)
-(* LittlewoodRichardsonRule returns a list of partitions resulting from the multiplication of partitions p and q. Some partitions may appear more than once in the list.Each occurs with its correct multiplicity.The list is in reverse lexicographic order. *)
-
-
-(* ::Input::Initialization:: *)
-LittlewoodRichardsonRule[p_,q_]:=If[Length[p]>Length[q],Sort[Last/@LRSequence[p,q],PartitionOrder[#1,#2]>=0&],Sort[Last/@LRSequence[q,p],PartitionOrder[#1,#2]>=0&]]
-
+LittlewoodRichardsonRule[p_,q_]:=Block[{\[Lambda]=DeleteCases[p,0],\[Nu]=DeleteCases[q,0],res},If[Length[\[Lambda]]>=Length[\[Nu]],
+res=Map[Length,LRTableaux[\[Lambda],\[Nu],Length[\[Nu]]],{2}];
+(** Removing stored data **)
+DownValues[LatticeWordQ]=Take[DownValues[LatticeWordQ],-2];
+Return[res,Block],
+res=Map[Length,LRTableaux[\[Nu],\[Lambda],Length[\[Lambda]]],{2}];
+(** Removing stored data **)
+DownValues[LatticeWordQ]=Take[DownValues[LatticeWordQ],-2];
+Return[res,Block]]]
 LittlewoodRichardsonRuleMap[list1_,list2_]:=Flatten[Map[ConstantArray[LittlewoodRichardsonRule[#[[1]],list2],#[[2]]]&,Tally[list1]],2]
 LittlewoodRichardsonRule[list1_,list2_,list3__]:=Sort[Fold[LittlewoodRichardsonRuleMap,LittlewoodRichardsonRule[list1,list2],{list3}]]
-
-
-(* ::Input::Initialization:: *)
+(* Not used *)
 LittlewoodRichardsonCoefficient0[\[Mu]_,\[Lambda]_,\[Nu]_]:=Count[LittlewoodRichardsonRule[\[Lambda],\[Nu]],\[Mu]]
 
 
 (* ::Input::Initialization:: *)
-AppendStrictTableauConstraint[t_,n_,ncolumn_,nrow_]:=(Append[t,#]&/@Select[IntegerPartitions[(Plus@@t[[-1]])+n,nrow,Range[ncolumn]],PartitionStrictlyCompare[t[[-1]],#]&])
+(******* Succesive applications of Pieri's Rule ****)
+AppendPartition[t_,n_]:=Append[t,#]&/@PieriRule[{n},Last[t]]
+AppendPartitionList[l_,n_]:=Join@@(AppendPartition[#,n]&/@l);
+LRCandidates[\[Lambda]_,\[Nu]_]:=Fold[AppendPartitionList,{{\[Lambda]}},\[Nu]];
+(**************************************************************************************************************)
+(****************** From a sequence of partition to a (skew) tableau and tableau to word **********************)
+(**************************************************************************************************************)
+SequencePartitionToTableau[sequence_]:=With[{ls=Length[sequence],prelist=With[{maxl=Length[Last[sequence]]},Join[{PadRight[sequence[[1]],maxl]},Differences@Map[PadRight[#,maxl]&,sequence]]]},
+Join[Sequence@@Map[With[{c=#},Map[ConstantArray[c,#]&,prelist[[c+1]]]]&,Range[0,ls-1]],2]
+]
+SequencePartitionToTableau0[sequence_]:=With[{ls=Length[sequence],prelist=With[{lmax=Length[Last[sequence]]},Differences@Map[PadRight[#,lmax]&,sequence]]},
+Join[Sequence@@Map[With[{c=#},Map[ConstantArray[c,#]&,prelist[[c]]]]&,Range[ls-1]],2]
+]
+(*** word is extracted from tableau reading tableau from upper right corner horizontally right to left and top to bottom ***)
+LRWord[sequence_]:=Reverse[Flatten[Reverse[SequencePartitionToTableau0[sequence]]]]
+(****** checking if word is Lattice word in Macdonald's sense see eg wiki  *******)
+LatticeWordQ[w_]:=Block[{test=True,i=1,lw=Length[w]},While[test&&i<=lw,If[w[[i]]>1,test=Count[Take[w,i],w[[i]]-1]>=Count[Take[w,i],w[[i]]]];i++];
+test
+]
+
+(******** Naive algortihm ***)
+LRSequence0[\[Lambda]_,\[Nu]_]:=Select[LRCandidates[\[Lambda],\[Nu]],LatticeWordQ[LRWord[#]]&]
+LittlewoodRichardsonRule0[p_,q_]:=With[{\[Lambda]=DeleteCases[p,0],\[Nu]=DeleteCases[q,0]},If[Length[\[Lambda]]>Length[\[Nu]],Last/@LRSequence0[\[Lambda],\[Nu]],Last/@LRSequence0[\[Nu],\[Lambda]]]]
+(********* recursive construction more efficient ! *****)
+(*LRSequence[\[Lambda]_,{n_}]:=Append[{\[Lambda]},#]&/@PieriRule[{n},\[Lambda]]
+(******* Possibility to memoize LRSequence ***)
+
+(*LRSequence[\[Lambda]_,\[Nu]_]:=With[{previousSequence=LRSequence[\[Lambda],Most[\[Nu]]]},
+Flatten[Map[With[{sequence=#},Select[Append[sequence,#]&/@PieriRule[{Last[\[Nu]]},Last[sequence]],LatticeWordQ[LRWord[#]]&]]&,previousSequence],1]]*)
+
+LRSequence[\[Lambda]_,\[Nu]_]:=LRSequence[\[Lambda],\[Nu]]=With[{previousSequence=LRSequence[\[Lambda],Most[\[Nu]]]},
+Flatten[Map[With[{sequence=#},Select[Append[sequence,#]&/@PieriRule[{Last[\[Nu]]},Last[sequence]],LatticeWordQ[LRWord[#]]&]]&,previousSequence],1]]
+
+LittlewoodRichardsonRule[p_,q_]:=With[{\[Lambda]=DeleteCases[p,0],\[Nu]=DeleteCases[q,0]},If[Length[\[Lambda]]>Length[\[Nu]],Last/@LRSequence[\[Lambda],\[Nu]],Last/@LRSequence[\[Nu],\[Lambda]]]]*)
+
+
+
+(* ::Input::Initialization:: *)
+(* (******* old VERSION ***)
+PartitionTruncate[\[Mu]_]:=DeleteCases[\[Mu],0];
+PartitionLength[\[Mu]_]:=Length[PartitionTruncate[\[Mu]]]
+(******** PartitionStrictlyCompare[\[Mu],\[Lambda]] returns True if ... ****)
+PartitionStrictlyCompare[\[Mu]_,\[Lambda]_]:=(IncludedPartitionQ[\[Lambda],\[Mu]]&&PartitionLength[\[Lambda]]<=PartitionLength[\[Mu]]+1&&(And@@Table[\[Mu][[i]]==\[Lambda][[i]]||\[Lambda][[i+1]]<\[Mu][[i]]+1,{i,1,PartitionLength[\[Lambda]]-1}]))
+
+AppendStrictTableauConstraint[t_,n_,ncolumn_,nrow_]:=Append[t,#]&/@Select[IntegerPartitions[(Plus@@t[[-1]])+n,nrow,Range[ncolumn]],PartitionStrictlyCompare[t[[-1]],#]&]
 AppendStrictTableauListConstraint[l_,n_,ncolumn_,nrow_]:=Join@@(AppendStrictTableauConstraint[#,n,ncolumn,nrow]&/@l)
 
-
-(* ::Input::Initialization:: *)
 LRCandidatesConstraint[\[Mu]_,\[Nu]_,ncolumn_,nrow_]:=Fold[AppendStrictTableauListConstraint[#1,#2,ncolumn,nrow]&,{{\[Mu]}},\[Nu]];
-LRSequenceConstraint[\[Mu]_,\[Nu]_,ncolumn_,nrow_]:=Select[LRCandidatesConstraint[PartitionTruncate[\[Mu]],PartitionTruncate[\[Nu]],ncolumn,nrow],TestWord[LRWord[#]]&]
+LRSequenceConstraint[\[Mu]_,\[Nu]_,ncolumn_,nrow_]:=Select[LRCandidatesConstraint[PartitionTruncate[\[Mu]],PartitionTruncate[\[Nu]],ncolumn,nrow],LatticeWordQ[LRWord[#]]&]
 
-
-(* ::Input::Initialization:: *)
 LittlewoodRichardsonRuleConstraint[\[Mu]_,\[Nu]_,ncolumn_,nrow_]:=Last/@LRSequenceConstraint[\[Mu],\[Nu],ncolumn,nrow]
 
+InverseLittlewoodRichardsonRule[\[Mu]_,\[Nu]_]:=Module[{n=Length[\[Mu]],mu1=\[Mu][[1]],mubar=DeleteCases[Reverse[\[Mu][[1]]-\[Mu]],0],lr},
+lr=LittlewoodRichardsonRuleConstraint[mubar,\[Nu],mu1,n];
+Map[Reverse[DeleteCases[#,0]]&,(mu1-PadRight[#,n]&/@lr)]
+]*)
+
 
 (* ::Input::Initialization:: *)
-InverseLittlewoodRichardsonRule[\[Mu]_,\[Nu]_]:=Module[{n=Length[\[Mu]],mu1=\[Mu][[1]],mubar=Reverse[\[Mu][[1]]-\[Mu]],lr},
+(********* Recursive construction more efficient ! *****)
+PartitionPieriCompare[\[Mu]_,\[Lambda]_]:=IncludedPartitionQ[\[Lambda],\[Mu]]&&(And@@Table[\[Lambda][[i+1]]<\[Mu][[i]]+1,{i,1,Length[\[Lambda]]-1}])
+LRSequenceConstraint[\[Lambda]_,{n_},ncolumn_,nrow_]:=With[{p\[Lambda]=DeleteCases[\[Lambda],0]},Append[{\[Lambda]},#]&/@Select[IntegerPartitions[Tr[\[Lambda]]+n,{Length[p\[Lambda]],Min[nrow,Length[p\[Lambda]]+1]},Range[ncolumn]],PartitionPieriCompare[p\[Lambda],#]&]];
+LRSequenceConstraint[\[Lambda]_,\[Nu]_,ncolumn_,nrow_]:=LRSequenceConstraint[\[Lambda],\[Nu],ncolumn,nrow]=With[{previousSequence=LRSequenceConstraint[\[Lambda],Most[\[Nu]],ncolumn,nrow]},
+Flatten[Map[With[{sequence=#},Select[Append[sequence,#]&/@Select[IntegerPartitions[Tr[Last[sequence]]+Last[\[Nu]],{Length[Last[sequence]],Min[nrow,Length[Last[sequence]]+1]},Range[ncolumn]],PartitionPieriCompare[Last[sequence],#]&],LatticeWordQ[LRWord[#]]&]]&,previousSequence],1]];
+LittlewoodRichardsonRuleConstraint[\[Mu]_,\[Nu]_,ncolumn_,nrow_]:=If[Length[\[Mu]]>Length[\[Nu]],Last/@LRSequenceConstraint[\[Mu],\[Nu],ncolumn,nrow],Last/@LRSequenceConstraint[\[Nu],\[Mu],ncolumn,nrow]];
+InverseLittlewoodRichardsonRule[\[Mu]_,{}]:={\[Mu]}
+InverseLittlewoodRichardsonRule[\[Mu]_,\[Mu]_]:={{}}
+InverseLittlewoodRichardsonRule[\[Mu]_,\[Nu]_]/;Tr[\[Nu]]<Tr[\[Mu]]/2:=Module[{n=Length[\[Mu]],mu1=\[Mu][[1]],mubar=Reverse[\[Mu][[1]]-\[Mu]],lr},
+(*Print[mubar,\[Nu],mu1,n];*)
 lr=LittlewoodRichardsonRuleConstraint[mubar,\[Nu],mu1,n];
 Map[Reverse[DeleteCases[#,0]]&,(mu1-PadRight[#,n]&/@lr)]
 ]
-(*************** This function is actually faster than the new equivalent function (see section below) that would be Map[WordToWeight,Values@LRTableaux[\[Mu],\[Nu]]] for n<12 so we keep it this way for the moment  ****)
 
 
 (* ::Input::Initialization:: *)
@@ -919,8 +968,8 @@ boxlist[\[Mu]_,\[Lambda]_]:=Complement[boxlist[\[Mu]],boxlist[\[Lambda]]]
 RLTBSort[list_]:=Sort[list,First[#1]<First[#2]||(First[#1]== First[#2]&&Last[#1]>Last[#2])&]
 (*Given a word, put that in the skew diagram \[Lambda]-\[Nu] from right to left (NOT left to right), top to bottom. Boxes which do not have numbers are not listed. Return as an association*)
 (*Functions with arguments \[Mu],\[Nu] are for computations with fixed \[Mu],\[Nu], Functions with \[Mu] are computations with fixed \[Mu], varying \[Nu].*)
-PutWordInShape[\[Mu]_,\[Lambda]_,word_]:=AssociationThread[Take[#,Length[word]]&@(RLTBSort@boxlist[\[Mu],\[Lambda]])-> word]
-PutWordInShape[\[Mu]_,word_]:=AssociationThread[Take[#,Length[word]]&@(RLTBSort@boxlist[\[Mu]])-> word]
+PutWordInShapeAssociation[\[Mu]_,\[Lambda]_,word_]:=AssociationThread[Take[#,Length[word]]&@(RLTBSort@boxlist[\[Mu],\[Lambda]])-> word]
+PutWordInShapeAssociation[\[Mu]_,word_]:=AssociationThread[Take[#,Length[word]]&@(RLTBSort@boxlist[\[Mu]])-> word]
 
 
 (* ::Input::Initialization:: *)
@@ -937,14 +986,14 @@ First/@Select[Thread[List[Range[Length[listminusdiff]],listminusdiff]],Last[#]>0
 
 (* ::Input::Initialization:: *)
 (*Given a word, the number in the above and right box of the first top-right empty box (read the skew-shape for right to left top to bottom )*)
-NumberAboveRightNextBox[\[Mu]_,word_]:=Module[{boxnumassoc=PutWordInShape[\[Mu],word],nextbox=(RLTBSort@boxlist[\[Mu]])[[Length[word]+1]],tryA0,tryL0,tryA,tryL},
+NumberAboveRightNextBox[\[Mu]_,word_]:=Module[{boxnumassoc=PutWordInShapeAssociation[\[Mu],word],nextbox=(RLTBSort@boxlist[\[Mu]])[[Length[word]+1]],tryA0,tryL0,tryA,tryL},
 tryA0=boxnumassoc[[Key[(nextbox+{-1,0})]]];
 tryL0=boxnumassoc[[Key[(nextbox+{0,1})]]];
 tryA=If[MissingQ[tryA0],0,tryA0];
 tryL=If[MissingQ[tryL0],Infinity,tryL0];
 {tryA,tryL}
 ]
-NumberAboveRightNextBox[\[Mu]_,\[Lambda]_,word_]:=Module[{boxnumassoc=PutWordInShape[\[Mu],\[Lambda],word],nextbox=(RLTBSort@boxlist[\[Mu],\[Lambda]])[[Length[word]+1]],tryA0,tryL0,tryA,tryL},
+NumberAboveRightNextBox[\[Mu]_,\[Lambda]_,word_]:=Module[{boxnumassoc=PutWordInShapeAssociation[\[Mu],\[Lambda],word],nextbox=(RLTBSort@boxlist[\[Mu],\[Lambda]])[[Length[word]+1]],tryA0,tryL0,tryA,tryL},
 tryA0=boxnumassoc[[Key[(nextbox+{-1,0})]]];
 tryL0=boxnumassoc[[Key[(nextbox+{0,1})]]];
 tryA=If[MissingQ[tryA0],0,tryA0];
@@ -956,34 +1005,49 @@ tryL=If[MissingQ[tryL0],Infinity,tryL0];
 (* ::Input::Initialization:: *)
 (* (To vary \[Nu],) the next number should be 0 if the present box have 0 and not leftmost, 
 can be zero if the box above the present box has 0, or the box is in the upmost row. (0 means the box is skewed away.)
-Non zero numbers are inserted so that the obtained tableau is a LR tableu.*)
-PossibleNextNumbers[\[Mu]_,word_]:=Module[{NARNB=NumberAboveRightNextBox[\[Mu],word],PNLN=PossibleNextLatticeNumbers[Select[word,#!= 0&]]},
+Non zero numbers are inserted so that the obtained tableau is a LR tableau.*)
+PossibleNextNumbers[\[Mu]_,word_]:=With[{NARNB=NumberAboveRightNextBox[\[Mu],word],PNLN=PossibleNextLatticeNumbers[Select[word,#!= 0&]]},
 If[NARNB[[2]]==0,{0},#]&@If[NARNB[[1]]==0,{0}~Join~#,#]&@
 Select[PNLN,NARNB[[1]]<#<= NARNB[[2]]&]]
 
-PossibleNextNumbers[\[Mu]_,\[Nu]_,word_]:=Module[{NARNB=NumberAboveRightNextBox[\[Mu],\[Nu],word],PNLN=PossibleNextLatticeNumbers[word]},
+PossibleNextNumbers[\[Mu]_,\[Nu]_,word_]:=With[{NARNB=NumberAboveRightNextBox[\[Mu],\[Nu],word],PNLN=PossibleNextLatticeNumbers[word]},
 Select[PNLN,NARNB[[1]]<#<= NARNB[[2]]&]]
 
-PossibleNextNumbers[\[Mu]_,\[Lambda]_,list_,word_]:=Module[{NARNB=NumberAboveRightNextBox[\[Mu],\[Lambda],word],PNLN=PossibleNextLatticeNumbers[word,list]},
+PossibleNextNumbers[\[Mu]_,\[Lambda]_,list_,word_]:=With[{NARNB=NumberAboveRightNextBox[\[Mu],\[Lambda],word],PNLN=PossibleNextLatticeNumbers[word,list]},
 Select[PNLN,NARNB[[1]]<#<= NARNB[[2]]&]]
 
 
 (* ::Input::Initialization:: *)
-PossibleNextWordList[\[Mu]_,word_]:=Module[{PNNs=PossibleNextNumbers[\[Mu],word]},
+PossibleNextWordList[\[Mu]_,word_]:=With[{PNNs=PossibleNextNumbers[\[Mu],word]},
 Append[word,#]&/@PNNs]
-PossibleNextWordList[\[Mu]_,\[Lambda]_,word_]:=Module[{PNNs=PossibleNextNumbers[\[Mu],\[Lambda],word]},
+PossibleNextWordList[\[Mu]_,\[Lambda]_,word_]:=With[{PNNs=PossibleNextNumbers[\[Mu],\[Lambda],word]},
 Append[word,#]&/@PNNs]
 (*PossibleNextWordList[\[Mu]_,\[Lambda]_,\[Nu]_,word_]:=Module[{PNNs=PossibleNextNumbers[\[Mu],\[Lambda],\[Nu],word]},
 Append[word,#]&/@PNNs]*)
-PossibleNextWordList[\[Mu]_,\[Lambda]_,list_,word_]:=Module[{PNNs=PossibleNextNumbers[\[Mu],\[Lambda],list,word]},
-Append[word,#]&/@PNNs]
+PossibleNextWordList[\[Mu]_,\[Lambda]_,list_,word_]:=With[{PNNs=PossibleNextNumbers[\[Mu],\[Lambda],list,word]},Append[word,#]&/@PNNs]
 
 
 (* ::Input::Initialization:: *)
-LRTableauWords[\[Mu]_]:=NestWhile[Flatten[(PossibleNextWordList[\[Mu],#1]&)/@#,1]&,{{}},Length[#[[1]]]<  Total[\[Mu]]&]
-LRTableauWords[\[Mu]_,\[Lambda]_]:=NestWhile[Flatten[(PossibleNextWordList[\[Mu],\[Lambda],#1]&)/@#,1]&,{{}},Length[#[[1]]]<Total[\[Mu]]-Total[\[Lambda]]&]
-(********** Possible optimization do-able **********)
-LRTableauWords[\[Mu]_,\[Lambda]_,\[Nu]_]:=Module[{ctab=WeightToWord[\[Nu]],n=Total[\[Mu]]-Total[\[Lambda]],words={{}}},
+(*LRTableauWords[\[Mu]_]:=NestWhile[Flatten[(PossibleNextWordList[\[Mu],#1]&)/@#,1]&,{{}},Length[#[[1]]]<  Total[\[Mu]]&]
+LRTableauWords[\[Mu]_,\[Lambda]_]:=NestWhile[Flatten[(PossibleNextWordList[\[Mu],\[Lambda],#1]&)/@#,1]&,{{}},Length[#[[1]]]<Total[\[Mu]]-Total[\[Lambda]]&]*)
+
+(*********************************************)
+(**** New implementation with memoization ****)
+(*********************************************)
+
+(** initialization **)
+LRTableauWords[{n_}]:=PadRight[ConstantArray[1,#],n]&/@Range[0,n];
+(** Recursion **)
+LRTableauWords[\[Mu]_]:=LRTableauWords[\[Mu]]=Nest[Flatten[(PossibleNextWordList[\[Mu],#1]&)/@#,1]&,LRTableauWords[Most[\[Mu]]],Last[\[Mu]]]
+
+(** initialization **)
+LRTableauWords[\[Mu]_,\[Lambda]_]/;Tr[\[Lambda]]>=Tr[\[Mu]]:={{}}
+LRTableauWords[{n_},\[Lambda]_]:={ConstantArray[1,n-Tr[\[Lambda]]]};
+(** Recursion **)
+LRTableauWords[\[Mu]_,\[Lambda]_]:=LRTableauWords[\[Mu],\[Lambda]]=Nest[Flatten[(PossibleNextWordList[\[Mu],\[Lambda],#1]&)/@#,1]&,LRTableauWords[Most[\[Mu]],\[Lambda]],Last[\[Mu]]-Max[0,Tr[\[Lambda]]-Tr[Most[\[Mu]]]]]
+
+(********** Possible optimization do-able here **********)
+LRTableauWords[\[Mu]_,\[Lambda]_,\[Nu]_]:=Block[{ctab=WeightToWord[\[Nu]],n=Total[\[Mu]]-Total[\[Lambda]],words={{}}},
 While[Length[words[[1]]]<n,
 words=Flatten[Map[PossibleNextWordList[\[Mu],\[Lambda],mycomplementSmall[ctab,#1],#1]&,#],1]&@words;
 If[words==={},Break[]];
@@ -993,20 +1057,33 @@ words
 
 
 (* ::Input::Initialization:: *)
-(**** If \[Lambda] is included in \[Mu] *****)
-IncludedQ[\[Mu]_,\[Lambda]_]:=With[{L=Max[Length[\[Mu]],Length[\[Lambda]]]},And@@(Thread[PadRight[\[Mu],L]>= PadRight[\[Lambda],L]])]
-(************** LRTableaux[\[Mu],\[Lambda],\[Nu]] returns the semi-standard tableaux of the shape \[Mu]/\[Lambda] and composition (aka content) \[Nu]. ***)
-LittlewoodRichardsonTableaux[\[Mu]_,\[Lambda]_,\[Nu]_]:=If[IncludedQ[\[Mu],\[Lambda]]&&IncludedQ[\[Mu],\[Nu]],PutWordInShape[\[Mu],\[Lambda],#]&/@LRTableauWords[\[Mu],\[Lambda],\[Nu]],{}];
-LittlewoodRichardsonTableaux[\[Mu]_,\[Lambda]_]:=PutWordInShape[\[Mu],\[Lambda],#]&/@LRTableauWords[\[Mu],\[Lambda]];
-LittlewoodRichardsonTableaux[\[Mu]_]:=PutWordInShape[\[Mu],#]&/@LRTableauWords[\[Mu]]
+PutWordInShape[\[Mu]_,word_]:=Reverse/@TakeList[word,\[Mu]]
+PutWordInShape[\[Mu]_,\[Lambda]_,word_]:=With[{diff=\[Mu]-PadRight[\[Lambda],Length[\[Mu]]]},
+Join[Map[ConstantArray["\[Cross]",#]&,\[Lambda]],PutWordInShape[diff,word],2]
+]
+(**************************************************************************************************************************************)
+(**** LRTableaux[\[Mu],\[Lambda],\[Nu]] returns the semi-standard tableaux of the shape \[Mu]/\[Lambda] and composition (aka content) \[Nu] which are Lattice perm. ***)
+(**************************************************************************************************************************************)
+
+(*LittlewoodRichardsonTableauxAsso[\[Mu]_,\[Lambda]_,\[Nu]_]:=If[IncludedPartitionQ[\[Mu],\[Lambda]]&&IncludedPartitionQ[\[Mu],\[Nu]],PutWordInShapeAssociation[\[Mu],\[Lambda],#]&/@LRTableauWords[\[Mu],\[Lambda],\[Nu]],{}];
+LittlewoodRichardsonTableauxAsso[\[Mu]_,\[Lambda]_]:=If[IncludedPartitionQ[\[Mu],\[Lambda]],PutWordInShapeAssociation[\[Mu],\[Lambda],#]&/@LRTableauWords[\[Mu],\[Lambda]],{}];*)
+
+LittlewoodRichardsonTableaux[\[Mu]_]:=PutWordInShapeAssociation[\[Mu],#]&/@LRTableauWords[\[Mu]]
+
+LittlewoodRichardsonTableaux[\[Mu]_,\[Lambda]_]:=If[IncludedPartitionQ[\[Mu],\[Lambda]],PutWordInShape[\[Mu],\[Lambda],#]&/@LRTableauWords[\[Mu],\[Lambda]],{}]
+LittlewoodRichardsonTableaux[\[Mu]_,\[Lambda]_,\[Nu]_]:=If[IncludedPartitionQ[\[Mu],\[Lambda]]&&IncludedPartitionQ[\[Mu],\[Nu]],PutWordInShape[\[Mu],\[Lambda],#]&/@LRTableauWords[\[Mu],\[Lambda],\[Nu]],{}];
+
 WordToWeight[word_]:=Last/@SortBy[#,First]&@Tally[word];
-LittlewoodRichardsonCoefficient[\[Mu]_,\[Lambda]_]/;IncludedQ[\[Mu],\[Lambda]]:=Association@(Tally@(WordToWeight/@LRTableauWords[\[Mu],\[Lambda]])/.{{a_,b_Integer}:>(a-> b)} )
-LittlewoodRichardsonCoefficient[\[Mu]_,\[Lambda]_]/;!IncludedQ[\[Mu],\[Lambda]]:=<|{}-> 0|>
+LittlewoodRichardsonCoefficient[\[Mu]_,\[Lambda]_]/;!IncludedPartitionQ[\[Mu],\[Lambda]]:={}
+LittlewoodRichardsonCoefficient[\[Mu]_,\[Lambda]_]:=Association@(Tally@(WordToWeight/@LRTableauWords[\[Mu],\[Lambda]])/.{{a_,b_Integer}:>(a-> b)} )
 SkewedShape[tableauassoc_]:=Last/@(Tally@(First/@Keys@Select[tableauassoc,#== 0&]))
 LittlewoodRichardsonCoefficient[\[Mu]_]:=Association@((Tally@({SkewedShape[#],WordToWeight[Values[Select[#,#1!= 0&]]]}&/@LittlewoodRichardsonTableaux[\[Mu]]))/.{{a_,b_Integer}:>(a-> b)} )
-LittlewoodRichardsonCoefficient[\[Mu]_,\[Lambda]_,\[Nu]_]:=If[IncludedQ[\[Mu],\[Lambda]]&&IncludedQ[\[Mu],\[Nu]]&&Plus@@\[Lambda]+Plus@@\[Nu]==Plus@@\[Mu],If[Plus@@\[Nu]<Plus@@\[Lambda],Length[LRTableauWords[\[Mu],\[Lambda],\[Nu]]],Length[LRTableauWords[\[Mu],\[Nu],\[Lambda]]]],0]
 
-
+(***** Single coefficients ***)
+LittlewoodRichardsonCoefficient[\[Mu]_,\[Lambda]_,\[Nu]_]:=If[IncludedPartitionQ[\[Mu],\[Lambda]]&&IncludedPartitionQ[\[Mu],\[Nu]],If[Tr[\[Lambda]]>Tr[\[Nu]],Length[LRTableauWords[\[Mu],\[Lambda],\[Nu]]],Length[LRTableauWords[\[Mu],\[Nu],\[Lambda]]]],0]
+(*************** InverseLittlewoodRichardson rule (part 2) *************)
+InverseLittlewoodRichardsonRule[\[Mu]_,\[Lambda]_]/;!IncludedPartitionQ[\[Mu],\[Lambda]]:={}
+InverseLittlewoodRichardsonRule[\[Mu]_,\[Nu]_]/;Tr[\[Nu]]>=Tr[\[Mu]]/2:=WordToWeight/@LRTableauWords[\[Mu],\[Nu]]
 (****** More than two tensor product of irrep (may need optimization) *****)
 LittlewoodRichardsonCoefficient[\[Lambda]_,\[Mu]1_,\[Mu]2_,\[Mu]3_]:=With[{n\[Mu]1=Tr[\[Mu]1],n\[Mu]2=Tr[\[Mu]2]},
 Plus@@Map[LittlewoodRichardsonCoefficient[#,\[Mu]1,\[Mu]2]*LittlewoodRichardsonCoefficient[\[Lambda],#,\[Mu]3]&,IntegerPartitions[n\[Mu]1+n\[Mu]2]]
