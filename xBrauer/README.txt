@@ -4,7 +4,7 @@
 
 
 The xBrauer package is an extension of the xAct Bundle  http://www.xAct.es/ (José M. Martin-Garcia, GPL 2002-2022). To work properly this package needs the following packages 
-From the xAct bundle : xPerm, xTensor, Invar, TraceFree, SymManipulator. 
+From the xAct bundle : xPerm, xTensor, Invar, SymManipulator. 
 Independent package coming with xBrauer : SymmetricFunctions, BrauerAlgebra. 
 
 

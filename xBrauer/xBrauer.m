@@ -71,7 +71,7 @@ If[Unevaluated[xAct`xCore`Private`$LastPackage]===xAct`xCore`Private`$LastPackag
 Off[General::nostdvar]
 Off[General::nostdopt]
 
-BeginPackage["xAct`xBrauer`",{"xAct`xTensor`","xAct`xPerm`","xAct`xCore`","xAct`Invar`","xAct`TraceFree`","xAct`SymManipulator`","xAct`SymmetricFunctions`","xAct`BrauerAlgebra`"}]
+BeginPackage["xAct`xBrauer`",{"xAct`xTensor`","xAct`xPerm`","xAct`xCore`","xAct`Invar`","xAct`SymManipulator`","xAct`SymmetricFunctions`","xAct`BrauerAlgebra`"}]
 
 
 (* ::Input::Initialization:: *)
@@ -173,7 +173,6 @@ identies are not taken into account.";
 (**************************************************************************************************************)
 (************************************** Trace decomposition of a tensor ***************************************)
 (**************************************************************************************************************)
-TraceFreeQ::usage="TraceFreeQ[tensor[inds],met] returns True if the contraction with the metric met of any pair of the indices of tensor is zero.";
 TracelessProjectorTensor::usage="(************ The function **************)
 TracelessProjectorTensor[n,f,{dim},g,inds] returns the f-traceless projector for tensors of order n, dimension of tangent space dim,  using metric g and indices inds.
 TracelessProjectorTensor[n,f,g,inds] returns the f-traceless projector for tensors of order n using metric g and indices inds with dim=DimOfManifold@@DependenciesOfTensor[g].
@@ -225,6 +224,8 @@ For a tensor to be associated with a metric g one should set the option Master->
 
 LeviCivitaQ::usage="LeviCivitaQ[covd,g] returns True if covd is the Levi-Civita connection associated with g. LeviCivitaQ[covd] returns True if covd is 
 the Levi-Civita connection associated with the metric MasterOf[covd] if any.";
+
+(*TraceFreeQ::usage="TraceFreeQ[tensor[inds],met] returns True if the contraction with the metric met of any pair of the indices of tensor is zero.";*)
 
 
 
@@ -415,7 +416,7 @@ SeparateSymplecticForm[exp_?(!SymplecticFormQ[#]&)]:=SeparateSymplecticForm[][ex
 
 
 (* ::Input::Initialization:: *)
-(********** To be modified ***********)
+(********** This is now private ***********)
 TraceFreeQ[tensor_?xTensorQ,inds___List,metric_?MetricQ|metric_?SymplecticFormQ]:=Module[{mettraces,traces,tfQ},
 mettraces=Map[metric@@#&,ChangeIndex/@Subsets[inds,{2}]];
 traces=Map[ContractMetric[ToCanonical[tensor@@inds*#],metric]&,mettraces];
