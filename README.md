@@ -1,5 +1,5 @@
 # xBrauer_Bundle
-The xBrauer package needs BrauerAlgebra SymmetricFunctions and the xAct bundle (in particular xPerm, xTensor, Invar, SymManipulator) to work properly. 
+The xBrauer package needs BrauerAlgebra SymmetricFunctions and the xAct bundle (in particular xPerm, xTensor, Invar, SymManipulator, xTras) to work properly. 
 It is specially useful for the trace decomposition and irreducible decomposition of a tensor. 
 
 
