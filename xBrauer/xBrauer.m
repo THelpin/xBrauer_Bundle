@@ -225,9 +225,9 @@ For a tensor to be associated with a metric g one should set the option Master->
 
 InducedMetricQ::usage="InducedMetricQ[met] returns true if met is the induced metric of another metric.";
 
-(*LeviCivitaQ::usage="LeviCivitaQ[covd,g] returns True if covd is the Levi-Civita connection associated with g. LeviCivitaQ[covd] returns True if covd is 
-the Levi-Civita connection associated with the metric MasterOf[covd] if any.";*)
-
+LeviCivitaQ::usage="LeviCivitaQ[covd,g] returns True if covd is the Levi-Civita connection associated with g. LeviCivitaQ[covd] returns True if covd is 
+the Levi-Civita connection associated with the metric MasterOf[covd] if any.";
+SafeCanonical::usage="SafeCanonical[e] is ToCanonical with the option UseMetricOnVBundle -> None";
 (*TraceFreeQ::usage="TraceFreeQ[tensor[inds],met] returns True if the contraction with the metric met of any pair of the indices of tensor is zero.";*)
 
 
@@ -1154,13 +1154,13 @@ FrozenMetricQ[metric_]:=And[Not@FirstMetricQ[metric],InducedFrom[metric]===Null]
 
 
 (* ::Input::Initialization:: *)
-(*LeviCivitaQ[covd_?CovDQ,metric_?MetricQ]:=Module[
+LeviCivitaQ[covd_?CovDQ,metric_?MetricQ]:=Module[
 { torsionQ=TorsionQ[covd],
 met=MetricOfCovD[covd],
 metricQ= MetricOfCovD[covd]=!= Null
 },
 If[!TorsionQ[covd]&&(metricQ),
-	If[ToString[met]\[Equal]ToString[metric],True,False],False]]*)
+	If[ToString[met]==ToString[metric],True,False],False]]
 
 
 (* ::Input::Initialization:: *)
@@ -1677,6 +1677,7 @@ If[metricQ,
 If[frozenQ,
 covd[a_][invmetric[b_Symbol?tbQ,c_Symbol?tbQ]]:=0;
 covd[a_][metric[-b_Symbol?tbQ,-c_Symbol?tbQ]]:=0;
+covd[a_][metric[b_Symbol?tbQ,c_Symbol?tbQ]]:=0;
 covd/:TensorDerivative[invmetric,covd,___]:=Zero;
 covd/:TensorDerivative[metric,covd,___]:=Zero,
 covd[a_][metric[b_?tbpmQ,c_?tbpmQ]]:=0;
@@ -1801,7 +1802,7 @@ TensorID->{Kretschmann,covd}];
 ];
 
 (* 11. Riemann versus Weyl ( we use xBrauer functions TracelessProject and TraceProject : problem with $RicciSign ? ) *)
-RiemannToWeylRules[covd]=If[curvQ&&metricQ&&If[integerdimQ,dim>1,True],If[info,Print["** DefCovD:  Computing RiemannToWeylRules for dim ",dim]];
+ xAct`xTensor`Private`RiemannToWeylRules[covd]=If[curvQ&&metricQ&&If[integerdimQ,dim>1,True],If[info,Print["** DefCovD:  Computing RiemannToWeylRules for dim ",dim]];
 Which[
 dim===2,
 SafeMakeRule[{RiemannName[-i1,-i2,-i3,i4],$RicciSign RicciScalarName[](metric[-i1,-i3]delta[-i2,i4]-delta[-i1,i4]metric[-i2,-i3])/2}],
@@ -1811,7 +1812,7 @@ SafeToRule[RiemannName[-i1,-i2,-i3,i4]==Collect[WeylName[-i1,-i2,-i3,i4]+
 										TracelessProject[RiemannName[-i1,-i2,-i3,i4],2,metric]+TraceProject[RiemannName[-i1,-i2,-i3,i4],metric],{_metric,_invmetric,_delta,_WeylName,_RicciName,_ RicciScalarName},Factor]]
 ],
 {}];
-WeylToRiemannRules[covd]=If[If[integerdimQ,dim>=4,True]&&metricQ&&curvQ,SafeToRule[WeylName[-i1,-i2,-i3,i4]==Collect[TracelessProject[RiemannName[-i1,-i2,-i3,i4],1,metric],{_metric,_invmetric,_delta,_RiemannName,_RicciName,_RicciScalarName},Factor]],
+ xAct`xTensor`Private`WeylToRiemannRules[covd]=If[If[integerdimQ,dim>=4,True]&&metricQ&&curvQ,SafeToRule[WeylName[-i1,-i2,-i3,i4]==Collect[TracelessProject[RiemannName[-i1,-i2,-i3,i4],1,metric],{_metric,_invmetric,_delta,_RiemannName,_RicciName,_RicciScalarName},Factor]],
 {}];
 (** We leave these Rules but i don't know what are there purposes **)
  xAct`xTensor`Private`RiemannToRiemannDownRules[covd]=If[metricQ&&frozenQ&&curvQ,MakeRule[{RiemannName[i1,i2,i3,i4],RiemannDownName[i1,i2,i3,-i1d]invmetric[i1d,i4]},MetricOn->All,TestIndices->False,ContractMetrics->True],
@@ -1819,14 +1820,14 @@ WeylToRiemannRules[covd]=If[If[integerdimQ,dim>=4,True]&&metricQ&&curvQ,SafeToRu
  xAct`xTensor`Private`RiemannDownToRiemannRules[covd]=If[metricQ&&curvQ,MakeRule[{RiemannDownName[i1,i2,i3,i4],RiemannName[i1,i2,i3,i1d]metric[-i1d,i4]},MetricOn->All,TestIndices->False,ContractMetrics->True],
 {}];
 (* 12. Ricci versus TFRicci. QUESTION: Are dimensions right when orthogonalQ or projectedQ? *)
-RicciToTFRicciRules[covd]=If[curvQ&&metricQ&&If[integerdimQ,dim>1,True],If[info,Print["** DefCovD:  Computing RicciToTFRicci for dim ",dim]];
+ xAct`xTensor`Private`RicciToTFRicciRules[covd]=If[curvQ&&metricQ&&If[integerdimQ,dim>1,True],If[info,Print["** DefCovD:  Computing RicciToTFRicci for dim ",dim]];
 Which[
 dim===2,
 SafeMakeRule[{RicciName[-i1,-i2],RicciScalarName[]metric[-i1,-i2]/2}],True,
 SafeToRule[RicciName[-i1,-i2]==(TFRicciName[-i1,-i2]+TraceProject[RicciName[-i1,-i2],metric])]
 ],
 {}];
-TFRicciToRicciRules[covd]=If[If[integerdimQ,dim>=3,True]&&metricQ&&curvQ,
+ xAct`xTensor`Private`TFRicciToRicciRules[covd]=If[If[integerdimQ,dim>=3,True]&&metricQ&&curvQ,
 SafeToRule[TFRicciName[-i1,-i2]==(TracelessProject[TFRicciName[-i1,-i2],1,metric])],
 {}];
 
@@ -2026,11 +2027,11 @@ head/:head[i___ ,i1_Symbol,j___,-i1_Symbol,k___]:=-head[i ,-i1,j,i1,k]
 
 
 (* ::Input::Initialization:: *)
-xTension["xMAG`xPert`",DefMetricPerturbation,"End"]:=xMAGxPertDefMetricPerturbation;
+xTension["xMAG`xPert`",DefMetricPerturbation,"End"]:=xBrauerxPertDefMetricPerturbation;
 
 
 (* ::Input::Initialization:: *)
-xMAGxPertDefMetricPerturbation[metric_,pert_,param_,options___?OptionQ]:=If[InducedMetricQ[metric],MasterOf[pert]^=metric;OrthogonalToVectorQ[InducedFrom[metric][[2]]][pert]^=True,MasterOf[pert]^=metric];
+xBrauerxPertDefMetricPerturbation[metric_,pert_,param_,options___?OptionQ]:=If[InducedMetricQ[metric],MasterOf[pert]^=metric;OrthogonalToVectorQ[InducedFrom[metric][[2]]][pert]^=True,MasterOf[pert]^=metric];
 
 
 (* ::Input::Initialization:: *)
