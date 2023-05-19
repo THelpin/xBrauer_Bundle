@@ -22,6 +22,7 @@
 (* ::Input::Initialization:: *)
 xAct`xBrauer`$Version={"0.1.0",{2022,28,10}};
 xAct`xBrauer`$xTensorVersionExpected={"1.2.0",{2021,10,17}};
+xAct`xTras`$xTrasVersionExpected={"1.0.6",{2014,10,30}};
 
 
 (* ::Input::Initialization:: *)
@@ -71,7 +72,7 @@ If[Unevaluated[xAct`xCore`Private`$LastPackage]===xAct`xCore`Private`$LastPackag
 Off[General::nostdvar]
 Off[General::nostdopt]
 
-BeginPackage["xAct`xBrauer`",{"xAct`xTensor`","xAct`xPerm`","xAct`xCore`","xAct`Invar`","xAct`SymManipulator`","xAct`SymmetricFunctions`","xAct`BrauerAlgebra`"}]
+BeginPackage["xAct`xBrauer`",{"xAct`xTensor`","xAct`xPerm`","xAct`xCore`","xAct`Invar`","xAct`SymManipulator`","xAct`xPert`","xAct`xTras`","xAct`SymmetricFunctions`","xAct`BrauerAlgebra`"}]
 
 
 (* ::Input::Initialization:: *)
@@ -159,7 +160,7 @@ The function can be applied to any linear combination of ClassTensor objects.";
 
 (*CentralYoungProjectorTensor::usage="CentralYoungProjectorTensor[\[Mu],g,inds] returns the central Young projector.";*)
 (*CentralYoungProject::usage="To do.";*)
-YoungSymmetrize::usage="YoungSymmetrize[exp,tab,indices] projects exp to the irreducible representation space parametrized by the standard tableau tab.";
+(*YoungSymmetrize::usage="YoungSymmetrize[exp,tab,indices] projects exp to the irreducible representation space parametrized by the standard tableau tab.";*)
 SemiNormalYoungProject::usage="SemiNormalYoungProject[exp,tableau,indices] projects exp to the irreducible representation space parametrized by the standard tableau tab.";
 GeneralLinearGroup::usage="In SymmetricFunctions GeneralLinearGroup is a parameter for DimOfIrrep and for BranchingRule.";
 GLIrreducibleProject::usage="GLIrreducibleProject[exp,tableau,indices] projects exp to the irreducible space parametrized by tableau.";
@@ -222,8 +223,10 @@ DefTensor[tens[inds],M,...,Master->Null] defines a tensor tens with indices inds
 MetricOfTensor::usage="MetricOfTensor[tens] returns the metric associated to the tensor tens. This metric is used to raised and lowered the indices of tens.  
 For a tensor to be associated with a metric g one should set the option Master->g (or Master->covdg) at definition time of tensor.";
 
-LeviCivitaQ::usage="LeviCivitaQ[covd,g] returns True if covd is the Levi-Civita connection associated with g. LeviCivitaQ[covd] returns True if covd is 
-the Levi-Civita connection associated with the metric MasterOf[covd] if any.";
+InducedMetricQ::usage="InducedMetricQ[met] returns true if met is the induced metric of another metric.";
+
+(*LeviCivitaQ::usage="LeviCivitaQ[covd,g] returns True if covd is the Levi-Civita connection associated with g. LeviCivitaQ[covd] returns True if covd is 
+the Levi-Civita connection associated with the metric MasterOf[covd] if any.";*)
 
 (*TraceFreeQ::usage="TraceFreeQ[tensor[inds],met] returns True if the contraction with the metric met of any pair of the indices of tensor is zero.";*)
 
@@ -826,7 +829,7 @@ If[output===ClassTensor,ToClassTensor[exp,CentralYoungProjector[\[Mu]]]]]];
 
 
 (* ::Input::Initialization:: *)
-SymTableau[tableau:{{___Integer}...},options___?OptionQ]:=Module[{tab,manifestsym,transpose,sgs,cycles},manifestsym=ManifestSymmetry/. CheckOptions[options]/. Options[YoungSymmetrize];
+SymTableau[tableau:{{___Integer}...},options___?OptionQ]:=Module[{tab,manifestsym,transpose,sgs,cycles},manifestsym=ManifestSym/. CheckOptions[options]/. Options[YoungSymmetrizer];
 transpose=TransposeTableau[tableau];
 (*The first set of cycles is simply the (anti)symmetrization of the tableau.*)sgs=If[manifestsym===Antisymmetric,Antisymmetric[#,Cycles]&/@transpose,Symmetric[#,Cycles]&/@tableau];
 cycles=sgs/. StrongGenSet[_List,GenSet[c___]]:>c;
@@ -841,7 +844,7 @@ signperm[-cycles_Cycles]:=-1
 
 (* ::Input::Initialization:: *)
 (*********** Function from xTras ******************)
-TableauSymmetric[tableau_:{{___Integer}...},options___?OptionQ]:=Module[{tab,manifestsym,transpose,sgs,cycles,samelengths,pairs,extracycles,sign},manifestsym=ManifestSymmetry/. CheckOptions[options]/. Options[YoungSymmetrize];
+TableauSymmetric[tableau_:{{___Integer}...},options___?OptionQ]:=Module[{tab,manifestsym,transpose,sgs,cycles,samelengths,pairs,extracycles,sign},manifestsym=ManifestSym/. CheckOptions[options]/. Options[YoungSymmetrizer];
 transpose=TransposeTableau[tableau];
 (*The first set of cycles is simply the (anti)symmetrization of the tableau.*)sgs=If[manifestsym===Antisymmetric,Antisymmetric[#,Cycles]&/@transpose,Symmetric[#,Cycles]&/@tableau];
 cycles=sgs/. StrongGenSet[_List,GenSet[c___]]:>c;
@@ -854,14 +857,14 @@ extracycles=Flatten[pairs/@samelengths]/. c_Cycles:>sign^Length[c]*c;
 
 
 (* ::Input::Initialization:: *)
-Options[YoungProjectSymH]:={ManifestSymmetry->Symmetric}
+(*Options[YoungProjectSymH]:={ManifestSym->Symmetric}*)
 YoungProjectSymH[tensor_?xTensorQ[inds___],stdtab_List,options:OptionsPattern[]]:=Module[{manifestsym,order=Length@Flatten[stdtab],sgs1,sgs2,group1,group2,symfactor1,symfactor11,symfactor2,supportstring,indiceslist,signs,multiplicities=DimOfIrrepSn[Length/@stdtab]},
-{manifestsym}=OptionValue[{YoungProjectSymH},{options},{ManifestSymmetry}];
+{manifestsym}=OptionValue[{YoungSymmetrizer},{options},{ManifestSym}];
 If[manifestsym===Antisymmetric,
-sgs1=TableauSymmetric[stdtab,ManifestSymmetry->Symmetric];
-sgs2=SymTableau[stdtab,ManifestSymmetry->Antisymmetric],
-sgs1=TableauSymmetric[stdtab,ManifestSymmetry->Antisymmetric];
-sgs2=SymTableau[stdtab,ManifestSymmetry->Symmetric]
+sgs1=TableauSymmetric[stdtab,ManifestSym->Symmetric];
+sgs2=SymTableau[stdtab,ManifestSym->Antisymmetric],
+sgs1=TableauSymmetric[stdtab,ManifestSym->Antisymmetric];
+sgs2=SymTableau[stdtab,ManifestSym->Symmetric]
 ];
 group1=List@@Dimino[sgs1]/.ID->Cycles[];
 group2=List@@Dimino[sgs2]/.ID->Cycles[];
@@ -877,27 +880,31 @@ YoungProjectSymH[k_*exp_Plus,stdtab_List,options:OptionsPattern[]]:=k*YoungProje
 
 
 (* ::Input::Initialization:: *)
-Options[YoungSymmetrize]:={ManifestSymmetry->Symmetric,Output->Tensor}
+(******** This function is kept private not to clash with the xTras function ********)
+
+Options[YoungSymmetrize]:={Output->Tensor}
 YoungSymmetrize[exp_,tableau:{{___Integer}...},options:OptionsPattern[]]:=Module[{indice=List@@IndicesOf[Free][exp],ms,output},
-{ms,output}=OptionValue[{YoungSymmetrize},{options},{ManifestSymmetry,Output}];
+{output}=OptionValue[{YoungSymmetrize},{options},{Output}];
+ms=ManifestSym/.CheckOptions[options]/.Options[YoungSymmetrizer];
 If[output===Tensor,
-MapIfPlus[TracePermuteIndices[#,indice,YoungSymmetrizer[tableau,ManifestSymmetry->ms]]&,exp],
-MapIfPlus[YoungProjectSymH[#,tableau,ManifestSymmetry->ms]&,exp]]
+MapIfPlus[TracePermuteIndices[#,indice,YoungSymmetrizer[tableau,ManifestSym->ms]]&,exp],
+MapIfPlus[YoungProjectSymH[#,tableau,ManifestSym->ms]&,exp]]
 ];
 
 YoungSymmetrize[exp_,tableau:{{___Integer}...},indices_List,options:OptionsPattern[]]:=Module[{ms,output},
-{ms,output}=OptionValue[{YoungSymmetrize},{options},{ManifestSymmetry,Output}];
+{output}=OptionValue[{YoungSymmetrize},{options},{Output}];
+ms=ManifestSym/.CheckOptions[options]/.Options[YoungSymmetrizer];
 If[output===Tensor,
-MapIfPlus[TracePermuteIndices[#,indices,YoungSymmetrizer[tableau,ManifestSymmetry->ms]]&,exp],
-MapIfPlus[YoungProjectSymH[#,tableau,ManifestSymmetry->ms]&,exp]]
+MapIfPlus[TracePermuteIndices[#,indices,YoungSymmetrizer[tableau,ManifestSym->ms]]&,exp],
+MapIfPlus[YoungProjectSymH[#,tableau,ManifestSym->ms]&,exp]]
 ];
 
 (*YoungSymmetrize[exp_,indtab_,options:OptionsPattern[]]:=Module[{indice=List@@IndicesOf[Free][exp],tableau,ms,output},
-{ms,output}=OptionValue[{YoungSymmetrize},{options},{ManifestSymmetry,Output}];
+{ms,output}=OptionValue[{YoungSymmetrize},{options},{ManifestSym,Output}];
 tableau=indtab/.Thread[Rule[List@@indice,Range[Length@indice]]];
 If[output===Tensor,
-MapIfPlus[TracePermuteIndices[#,indice,YoungSymmetrizer[tableau,ManifestSymmetry\[Rule]ms]]&,exp],
-MapIfPlus[YoungProjectSymH[#,tableau,ManifestSymmetry\[Rule]ms]&,exp]]
+MapIfPlus[TracePermuteIndices[#,indice,YoungSymmetrizer[tableau,ManifestSym\[Rule]ms]]&,exp],
+MapIfPlus[YoungProjectSymH[#,tableau,ManifestSym\[Rule]ms]&,exp]]
 ];*)
 
 
@@ -966,7 +973,7 @@ GLCentralIrreducibleProject[exp:tensor_?xTensorQ[inds___],diagram:{___Integer},o
 
 (* ::Input::Initialization:: *)
 Options[GLIrreducibleProject]:={Method->SemiNormalYoungUnit,Output->Tensor}
-GLIrreducibleProject[exp_,tableau:{{___Integer}...},indices_List,options:OptionsPattern[]]:=Module[{method},
+GLIrreducibleProject[exp_,tableau:{{___Integer}...},indices_List,options:OptionsPattern[]]:=Module[{method,ms},
 {method}=OptionValue[{GLIrreducibleProject},{options},{Method}];
 If[method===SemiNormalYoungUnit,
 SemiNormalYoungProject[exp,tableau,indices],
@@ -1147,18 +1154,25 @@ FrozenMetricQ[metric_]:=And[Not@FirstMetricQ[metric],InducedFrom[metric]===Null]
 
 
 (* ::Input::Initialization:: *)
-LeviCivitaQ[covd_?CovDQ,metric_?MetricQ]:=Module[
+(*LeviCivitaQ[covd_?CovDQ,metric_?MetricQ]:=Module[
 { torsionQ=TorsionQ[covd],
 met=MetricOfCovD[covd],
 metricQ= MetricOfCovD[covd]=!= Null
 },
 If[!TorsionQ[covd]&&(metricQ),
-	If[ToString[met]==ToString[metric],True,False],False]]
+	If[ToString[met]\[Equal]ToString[metric],True,False],False]]*)
 
 
 (* ::Input::Initialization:: *)
-LeviCivitaQ[covd_?CovDQ,_]:=False
-LeviCivitaQ[covd_?CovDQ]:=LeviCivitaQ[covd,MasterOf[covd]]
+(*LeviCivitaQ[covd_?CovDQ,_]:=False
+LeviCivitaQ[covd_?CovDQ]:=LeviCivitaQ[covd,MasterOf[covd]]*)
+
+
+(* ::Input::Initialization:: *)
+(****** Convenient Private functions ***)
+SafeCanonical[e_]:=ToCanonical[e, UseMetricOnVBundle -> None]
+SafeToRule[exp_]:=ToRule[exp,MetricOn->None,ContractMetrics->False];
+SafeMakeRule[e_List]:=MakeRule[e,MetricOn->None,ContractMetrics->False]
 
 
 (* ::Input::Initialization:: *)
@@ -1222,6 +1236,20 @@ SetConformalTo[metric_?MetricQ[-i1_,-i2_],{originalmetric_?MetricQ[-i1_,-i2_],co
 
 
 (* ::Input::Initialization:: *)
+ConformalTransform[exp_,met_?MetricQ,confmet_?MetricQ]:=Module[{covdmet=CovDOfMetric[met],covdconfmet=CovDOfMetric[confmet],TM=VBundleOfMetric[met],res},
+(** We modify the canonical slots of Riemann tensor for the first metric **)
+If[First[$Metrics]===met,
+SlotsOfTensor[Riemann[covdmet]]^:={-TM,-TM,-TM,TM}];
+If[First[$Metrics]===confmet,
+SlotsOfTensor[Riemann[covdconfmet]]^:={-TM,-TM,-TM,TM}];
+If[First[$Metrics]=!=confmet,
+Return[CollectTensors[(SeparateMetric[met][FixedPoint[BreakChristoffel,ChangeCovD[exp,covdmet,covdconfmet]]])/.ConformalRules[met,confmet],{CollectMethod->SafeCanonical}],Module],
+Return[CollectTensors[(SeparateMetric[met][FixedPoint[BreakChristoffel,ChangeCovD[exp,covdmet,covdconfmet]]])/.ConformalRules[met,confmet]],Module]
+]
+];
+
+
+(* ::Input::Initialization:: *)
 Unprotect[DefMetric]
 Off[RuleDelayed::rhs];
 Options[DefMetric]:={
@@ -1239,15 +1267,11 @@ DefMetricPerturbation->True}
 DefMetric[signdet_,metric_[-ind1_,-ind2_],covd_,options:OptionsPattern[]]:=Catch@With[{
 vbundle=VBundleOfIndex[ind1]},
 
-Module[{covdsymbol,flat,inducedfrom,confto,odeps,wwb,eoib,pns,info,flatPD,inducedQ,dim,integerdimQ,frozenQ,firstQ,invertQ,firstmetric,supermetric,vector,LCmetric},
-
+Module[{covdsymbol,flat,inducedfrom,confto,odeps,wwb,eoib,pns,info,flatPD,inducedQ,dim,integerdimQ,frozenQ,firstQ,invertQ,firstmetric,supermetric,vector,LCmetric,test},
 (* Options and checks *)
 {covdsymbol,flat,inducedfrom,confto,odeps,wwb,eoib,pns,info}=OptionValue[{DefMetric,DefCovD},{options},{SymbolOfCovD,FlatMetric,InducedFrom,ConformalTo,OtherDependencies,WeightedWithBasis,epsilonOrientationInBasis,ProtectNewSymbol,DefInfo}];
 
 xAct`xTensor`Private`DefMetricCheck[signdet,metric[-ind1,-ind2],covd,covdsymbol,flat,inducedfrom,confto,odeps,wwb,eoib];
-(** xTras extension **)
-If[TrueQ@And[DefMetricPerturbaton/.CheckOptions[options]/.Options[DefMetric],!(FlatMetric/.CheckOptions[options]/.Options[DefMetric])],DefMetricPerturbation[metric,GiveSymbol[Perturbation,metric],GiveSymbol[PerturbationParameter,metric]];
-PrintAs[Evaluate@GiveSymbol[Perturbation,metric]]^=StringJoin[PrintAs[Evaluate@Perturbation],PrintAs[Evaluate@metric]]];
 (* Explore *)
 flatPD=flat&&(covd===PD);
 dim=DimOfVBundle[vbundle];
@@ -1258,7 +1282,6 @@ inducedQ=And[!firstQ,inducedfrom=!=Null];
 frozenQ=And[!firstQ,!inducedQ];
 If[inducedQ,{supermetric,vector}=inducedfrom];
 If[frozenQ,firstmetric=First[MetricsOfVBundle[vbundle]]];
-
 With[{
 manifold=BaseOfVBundle[vbundle],
 deps=Union[{BaseOfVBundle[vbundle]},odeps],
@@ -1385,7 +1408,7 @@ If[$ProtectNewSymbols,Protect[epsilonname]]
 (* Self-contractions. Transformation to delta or metric for A-indices contraction of two metrics (this could be generalized). Projectors not automatically converted into delta *)
 If[frozenQ,
 (*********************************************************************************************************************************************)
-(****** xMAG MODIFICATION : If metric is frozen metric with mixed indices is also passed to delta *****)
+(****** xBrauer MODIFICATION : If metric is frozen metric with mixed indices is also passed to delta *****)
 (**********************************************************************************************************************************************)
 metric/:metric[a_?UpIndexQ,b_?DownIndexQ]:=delta[b,a];
 metric/:metric[a_?DownIndexQ,b_?UpIndexQ]:=delta[a,b];
@@ -1494,6 +1517,10 @@ If[confto=!=Null,
 SetConformalTo[metric[-ind1,-ind2],confto]
 (*SetConformalToNew[metric,{Head[confto[[1]]],confto[[2]]}]*)
 ];
+(* 
+(** xTras extension using xPert to automatically define metric perturbations : not needed because we load xTras **)
+If[TrueQ@And[DefMetricPerturbation/.CheckOptions[options]/.Options[DefMetric],!(FlatMetric/.CheckOptions[options]/.Options[DefMetric])],DefMetricPerturbation[metric,GiveSymbol[Perturbation,metric],GiveSymbol[PerturbationParameter,metric]];
+PrintAs[Evaluate@GiveSymbol[Perturbation,metric]]^=StringJoin[PrintAs[Evaluate@Perturbation],PrintAs[Evaluate@metric]]];*)
 
 MakexTensions[DefMetric,"End",signdet,metric[-ind1,-ind2],covd,options];
 
@@ -1617,7 +1644,6 @@ If[!endowedQ&&(projectedQ||orthogonalQ),Throw@Message[DefCovD::error,"xTensor ca
 
 If[orthogonalQ,vector=ov[[1,0]]];
 If[projectedQ,projector=pw[[1,0]]];
-
 (* 1. Define torsion tensor *)
 vanishQ=!torQ;
 DefTensor[TorsionName[i1,-i2,-i3],DependenciesOfCovD[covd],Antisymmetric[{2,3}],
@@ -1774,7 +1800,7 @@ DefInfo:>If[info,{"Kretschmann scalar",""},False],
 TensorID->{Kretschmann,covd}];
 ];
 
-(* 11. Riemann versus Weyl ( we use xBrauer functions ToTracelessTensor and ToTraceTensor : problem with $RicciSign ? ) *)
+(* 11. Riemann versus Weyl ( we use xBrauer functions TracelessProject and TraceProject : problem with $RicciSign ? ) *)
 RiemannToWeylRules[covd]=If[curvQ&&metricQ&&If[integerdimQ,dim>1,True],If[info,Print["** DefCovD:  Computing RiemannToWeylRules for dim ",dim]];
 Which[
 dim===2,
@@ -1782,10 +1808,10 @@ SafeMakeRule[{RiemannName[-i1,-i2,-i3,i4],$RicciSign RicciScalarName[](metric[-i
 dim===3,SafeMakeRule[{RiemannName[-i1,-i2,-i3,i4],$RicciSign (metric[-i1,-i3]invmetric[i4,i5]RicciName[-i2,-i5]+delta[-i2,i4]RicciName[-i1,-i3]-delta[-i1,i4]RicciName[-i2,-i3]-metric[-i2,-i3]invmetric[i4,i5]RicciName[-i1,-i5])/(dim-2)-$RicciSign RicciScalarName[](metric[-i1,-i3]delta[-i2,i4]-delta[-i1,i4]metric[-i2,-i3])/(dim-1)/(dim-2)}],
 True,
 SafeToRule[RiemannName[-i1,-i2,-i3,i4]==Collect[WeylName[-i1,-i2,-i3,i4]+
-										ToTracelessTensor[RiemannName[-i1,-i2,-i3,i4],2,metric]+ToTraceTensor[RiemannName[-i1,-i2,-i3,i4],2,metric],{_metric,_invmetric,_delta,_WeylName,_RicciName,_ RicciScalarName},Factor]]
+										TracelessProject[RiemannName[-i1,-i2,-i3,i4],2,metric]+TraceProject[RiemannName[-i1,-i2,-i3,i4],metric],{_metric,_invmetric,_delta,_WeylName,_RicciName,_ RicciScalarName},Factor]]
 ],
 {}];
-WeylToRiemannRules[covd]=If[If[integerdimQ,dim>=4,True]&&metricQ&&curvQ,SafeToRule[WeylName[-i1,-i2,-i3,i4]==Collect[ToTracelessTensor[RiemannName[-i1,-i2,-i3,i4],1,metric],{_metric,_invmetric,_delta,_RiemannName,_RicciName,_RicciScalarName},Factor]],
+WeylToRiemannRules[covd]=If[If[integerdimQ,dim>=4,True]&&metricQ&&curvQ,SafeToRule[WeylName[-i1,-i2,-i3,i4]==Collect[TracelessProject[RiemannName[-i1,-i2,-i3,i4],1,metric],{_metric,_invmetric,_delta,_RiemannName,_RicciName,_RicciScalarName},Factor]],
 {}];
 (** We leave these Rules but i don't know what are there purposes **)
  xAct`xTensor`Private`RiemannToRiemannDownRules[covd]=If[metricQ&&frozenQ&&curvQ,MakeRule[{RiemannName[i1,i2,i3,i4],RiemannDownName[i1,i2,i3,-i1d]invmetric[i1d,i4]},MetricOn->All,TestIndices->False,ContractMetrics->True],
@@ -1797,11 +1823,11 @@ RicciToTFRicciRules[covd]=If[curvQ&&metricQ&&If[integerdimQ,dim>1,True],If[info,
 Which[
 dim===2,
 SafeMakeRule[{RicciName[-i1,-i2],RicciScalarName[]metric[-i1,-i2]/2}],True,
-SafeToRule[RicciName[-i1,-i2]==(TFRicciName[-i1,-i2]+ToTraceTensor[RicciName[-i1,-i2],1,metric])]
+SafeToRule[RicciName[-i1,-i2]==(TFRicciName[-i1,-i2]+TraceProject[RicciName[-i1,-i2],metric])]
 ],
 {}];
 TFRicciToRicciRules[covd]=If[If[integerdimQ,dim>=3,True]&&metricQ&&curvQ,
-SafeToRule[TFRicciName[-i1,-i2]==(ToTracelessTensor[TFRicciName[-i1,-i2],1,metric])],
+SafeToRule[TFRicciName[-i1,-i2]==(TracelessProject[TFRicciName[-i1,-i2],1,metric])],
 {}];
 
 (* 13. Ricci versus Einstein *)
@@ -1822,21 +1848,11 @@ xAct`xTensor`Private`EinsteinToRicciRules[covd]=If[If[integerdimQ,dim>=3,True]&&
 
 
 (* ::Input::Initialization:: *)
-ConformalTransform[exp_,met_?MetricQ,confmet_?MetricQ]:=Module[{covdmet=CovDOfMetric[met],covdconfmet=CovDOfMetric[confmet],TM=VBundleOfMetric[met],res},
-(** We modify the canonical slots of Riemann tensor for the first metric **)
-If[First[$Metrics]===met,
-SlotsOfTensor[Riemann[covdmet]]^:={-TM,-TM,-TM,TM}];
-If[First[$Metrics]===confmet,
-SlotsOfTensor[Riemann[covdconfmet]]^:={-TM,-TM,-TM,TM}];
-If[First[$Metrics]=!=confmet,
-Return[CollectTensors[(SeparateMetric[met][FixedPoint[BreakChristoffel,ChangeCovD[exp,covdmet,covdconfmet]]])/.ConformalRules[met,confmet],{CollectMethod->SafeCanonical}],Module],
-Return[CollectTensors[(SeparateMetric[met][FixedPoint[BreakChristoffel,ChangeCovD[exp,covdmet,covdconfmet]]])/.ConformalRules[met,confmet]],Module]
-]
-];
+Bimetric::nomet="There is no metric associated to `1`.";
 
 
 (* ::Input::Initialization:: *)
-Bimetric::nomet="There is no metric associated to `1`.";
+InducedMetricQ[metric_?MetricQ]:=If[InducedFrom[metric]===Null,False,True];
 
 
 (* ::Input::Initialization:: *)
@@ -2010,41 +2026,43 @@ head/:head[i___ ,i1_Symbol,j___,-i1_Symbol,k___]:=-head[i ,-i1,j,i1,k]
 
 
 (* ::Input::Initialization:: *)
-xTension["xBrauer`xPert`",DefMetricPerturbation,"End"]:=xBrauerxPertDefMetricPerturbation;
+xTension["xMAG`xPert`",DefMetricPerturbation,"End"]:=xMAGxPertDefMetricPerturbation;
 
 
 (* ::Input::Initialization:: *)
-xBrauerxPertDefMetricPerturbation[metric_,pert_,param_,options___?OptionQ]:=If[InducedMetricQ[metric],MasterOf[pert]^:=metric;OrthogonalToVectorQ[InducedFrom[metric][[2]]][pert]^=True,MasterOf[pert]^=metric];
+xMAGxPertDefMetricPerturbation[metric_,pert_,param_,options___?OptionQ]:=If[InducedMetricQ[metric],MasterOf[pert]^=metric;OrthogonalToVectorQ[InducedFrom[metric][[2]]][pert]^=True,MasterOf[pert]^=metric];
 
 
 (* ::Input::Initialization:: *)
-xAct`xTras`Private`DefMetricVariation[metric_?MetricQ,per_,param_]:=Module[{var,M,vb,a,b,c,d,normalvector},vb=VBundleOfMetric@metric;
+xAct`xTras`Private`DefMetricVariation[metric_?MetricQ,per_,param_]:=Module[{var,M,vb,a,b,c,d,normalvector},
+vb=VBundleOfMetric@metric;
 M=BaseOfVBundle@vb;
 {a,b,c,d}=GetIndicesOfVBundle[vb,4];
-If[Perturbation[metric[-a,-b]]=!=per[LI[1],-a,-b],Throw@Message[DefMetricVariation::error,"Metric perturbation does not match or is not defined."]];
+If[Perturbation[metric[-a,-b]]=!=per[LI[1],-a,-b],Throw@Message[DefMetricPerturbation::error,"Metric perturbation does not match or is not defined."]];
 Block[{$DefInfoQ=False},
 If[InducedMetricQ[metric],
 normalvector=InducedFrom[metric][[2]];
 (****** We set Perturbation of Projected tensors as projected quantities : dangerous ??? ***)
 OrthogonalToVectorQ[normalvector][Perturbation[tensor_?(OrthogonalToVectorQ[normalvector][#]&)[inds___]]]^=True;
-DefTensor[var[-a,-b],M,Symmetric[{-a,-b}],OrthogonalTo->{normalvector[a],normalvector[b]},ProjectedWith->{metric[a,-c],metric[b,-d]}],
-DefTensor[var[-a,-b],M,Symmetric[{-a,-b}]]
-]];
-With[{cd=CovDOfMetric[metric],sqrt=Sqrt[SignDetOfMetric[metric] Determinant[metric][]]},
-
+DefTensor[var[-a,-b],M,Symmetric[{-a,-b}],OrthogonalTo->{normalvector[a],normalvector[b]},ProjectedWith->{metric[a,-c],metric[b,-d]},Master->metric],
+DefTensor[var[-a,-b],M,Symmetric[{-a,-b}],Master->metric]]
+];
+With[{cd=CovDOfMetric[metric],sqrt=Sqrt[SignDetOfMetric[metric] *Determinant[metric][]]},
 (*We can now define a total variation (w.r.t.to metric) as follows.Note that we're only varying the metric and hence set variations of any other tensors to zero.*)VarDt[metric,expr_]:=Module[{mod},mod=MapIfPlus[ContractMetric,Expand@Perturbation[expr]];
 ExpandPerturbation@SameDummies@mod/.{per[LI[1],inds__]:>var[inds],p:(tensor_[LI[1],___])/;(xTensorQ[tensor]&&tensor=!=per&&PerturbationOrder[p]===1)->0}];
 (*The functional derivation is then defined as...*)
-VarD[metric[-c_Symbol,-d_Symbol],cd][expr_]:=Module[{mod,withvar,novar},mod=Expand@VarDt[metric,expr];
+VarD[metric[-i1_Symbol,-i2_Symbol],cd][expr_]:=Module[{mod,withvar,novar},mod=Expand@VarDt[metric,expr];
 novar=mod/.var[__]->0;
 withvar=mod-novar;
-VarD[var[-c,-d],cd][withvar]];
-VarD[metric[+c_Symbol,+d_Symbol],cd][expr_]:=Module[{mod,withvar,novar},mod=Expand@VarDt[metric,expr];
+ContractMetric[VarD[var[-i1,-i2],cd][withvar]]];
+VarD[metric[+i1_Symbol,+i2_Symbol],cd][expr_]:=Module[{mod,withvar,novar},mod=Expand@VarDt[metric,expr];
 novar=mod/.var[__]->0;
 withvar=mod-novar;
--VarD[var[c,d],cd][withvar]];
+-VarD[var[i1,i2],cd][withvar]];
 (*And finally one handy function that varies Lagrangians,and thus takes care of the square root of the determinant.*)VarL[metric[inds__]][L_]:=VarL[metric[inds],cd][L];
-VarL[metric[inds__],cd][L_]:=VarD[metric[inds],cd][L]+ReplaceDummies[L] VarD[metric[inds],cd][sqrt]/sqrt;];];
+VarL[metric[inds__],cd][L_]:=VarD[metric[inds],cd][L]+ReplaceDummies[L] VarD[metric[inds],cd][sqrt]/sqrt
+]
+];
 
 
 (* ::Input::Initialization:: *)

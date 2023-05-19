@@ -221,7 +221,7 @@ and pairwise orthogonal.";
 ExpandCentralYoung::usage="ExpandCentralYoung[exp] expresses all occurences in exp of objects with the head CentralYoung in terms of Bracelets.";
 BraceletsToCentralYoung::usage="BraceletsToCentralYoung[exp] expresses all occurences of conjugacy class sums (with the head Bracelets) 
 of the symmetric group in terms of CentralYoung.";
-ManifestSymmetry::usage="ManifestSymmetry is an option for YoungSymmetrizer that specifies with which convention one construct the Young Symmetrizer from a given
+ManifestSym::usage="ManifestSym is an option for YoungSymmetrizer that specifies with which convention one construct the Young Symmetrizer from a given
 standard tableau. 
 The default is Symmetric, with which first the columns are antisymmetrized and lastly the rows are symmetrized, resulting in an expression which is manifestly 
 row symmetric. The other setting is Antisymmetric, with which first the rows of the diagram are symmetrized 
@@ -293,7 +293,7 @@ BratteliDiagramBn::usage="BrattelidiagramBn[n] returns the Bratteli diagram of t
 BratteliPathBn::usage="BratteliPathBn[n,\[Mu]] returns the set of paths in the Bratteli diagram of the Brauer algebra \!\(\*SubscriptBox[\(B\), \(n\)]\) which ends with the partition \[Mu].
 Note that this function should not be compared with BratteliPathSn.";
 DimOfIrrepBn::usage="DimOfIrrepBn[n,\[Mu]] returns the dimension of the irreducible representation of the Brauer algebra associated to the integer n and to the partition \[Mu].";
-BranchingRule::usage="BranchingRule[\[Mu],SymmetricGroup[n1],SymmetricGroup[n2]] ... BranchingRule[\[Mu],GeneralLinearGroup[N],OrthogonalGroup[N]]... 
+BranchingRule::usage="Experimental : BranchingRule[\[Mu],SymmetricGroup[n1],SymmetricGroup[n2]] ... BranchingRule[\[Mu],GeneralLinearGroup[N],OrthogonalGroup[N]]... 
 BranchingRule[\[Mu],GeneralLinearGroup[N],SymplecticGroup[N]]. 
 BranchingRule[\[Mu],BrauerAlgebra[n1],BrauerAlgebra[n2]] ... BranchingRule[\[Mu],BrauerAlgebra[n],SymmetricGroup[n]].
 ";
@@ -363,9 +363,7 @@ CentralIdempotent[n,\[Lambda],\[Delta]] returns the central primitive idempotent
 All CentralIdempotent[n,\[Lambda],\[Delta]] are pairwise orthogonal and they form a complete set of central primitive orthogonal idempotents. 
 CentralIdempotent[n,f,\[Delta]] returns the sum of CentralIdempotent[n,\[Lambda],\[Delta]] over the partitions \[Lambda] of n-2f. 
 CentralIdempotent[n,f,\[Delta]] correspond to the (f+1)-traceless projectors with the convention of the package. The input \[Delta] is optional, the default value is BrauerParameter[].
-(* Case 2 : the product parameter \[Delta] in the Brauer Algebra is an integer *)
-(*** Remark ****)
-For the moment this function works only in the semisimple regime of \!\(\*SubscriptBox[\(B\), \(n\)]\)(\[Delta]).";
+(* Case 2 : the product parameter \[Delta] in the Brauer Algebra is an integer *).";
 
 CentralIdempotentBranching::usage="CentralIdempotentBranching[n,{\[Mu],\[Lambda]},\[Delta]]";
 CanonicalPrimitiveIdempotent::usage=StringReplace["CanonicalPrimitiveIdempotent[n,path,\[Delta]] returns the canonical primitive idempotent in \!\(\*SubscriptBox[\(B\), \(n\)]\)(\[Delta]) associated  with
@@ -1022,21 +1020,21 @@ NumberOfTableaux[n_Integer]:=Plus@@(DimOfIrrepSn[#]&/@IntegerPartitions[n])
 
 (* ::Input::Initialization:: *)
 (************* New algorithm *************)
-Options[YoungSymmetrizerCycles]:={ManifestSymmetry->Symmetric}
+Options[YoungSymmetrizerCycles]:={ManifestSym->Symmetric}
 YoungSymmetrizerCycles[stdtab_,options:OptionsPattern[]]:=Block[{n=Length[Flatten[stdtab]],YS=RawSymmetrizer[stdtab],YA=ColumnAntisymmetrizer[stdtab],youngdiag=Length/@stdtab,msym},
-{msym}=OptionValue[{YoungSymmetrizerCycles},{options},{ManifestSymmetry}];
+{msym}=OptionValue[{YoungSymmetrizerCycles},{options},{ManifestSym}];
 If[msym===Symmetric,
 Expand[DimOfIrrepSn[youngdiag]/(n!)*PermutationProduct[YS,YA]],
 Expand[DimOfIrrepSn[youngdiag]/(n!)*PermutationProduct[YA,YS]]]
 ];
 
-Options[YoungSymmetrizer]:={Output->Cycles,ManifestSymmetry->Symmetric}
+Options[YoungSymmetrizer]:={Output->Cycles,ManifestSym->Symmetric}
 YoungSymmetrizer[stdtab_,options:OptionsPattern[]]:=Module[{output,msym},
 {output}=OptionValue[{YoungSymmetrizer},{options},{Output}];
-{msym}=OptionValue[{YoungSymmetrizer},{options},{ManifestSymmetry}];
+{msym}=OptionValue[{YoungSymmetrizer},{options},{ManifestSym}];
 If[SameQ[output,Cycles],
-YoungSymmetrizerCycles[stdtab,ManifestSymmetry->msym],
-PermToBrauer[YoungSymmetrizerCycles[stdtab,ManifestSymmetry->msym],Length[Flatten[stdtab]]]
+YoungSymmetrizerCycles[stdtab,ManifestSym->msym],
+PermToBrauer[YoungSymmetrizerCycles[stdtab,ManifestSym->msym],Length[Flatten[stdtab]]]
 ]
 ];
 
@@ -1162,19 +1160,14 @@ BrauerCycles[2,1]={{{0,0}}};
 (***** Precomputed Cycles *****)
 BrauerCycles[3]=Evaluate[DeleteDuplicates[SortCycles1/@Join[{{{3}}},Flatten[Map[Flatten[Outer[Join[#1,#2,1]&,BrauerCycles[#[[1]]],BrauerCycles[#[[2]]],1],1]&,Rest@IntegerPartitions[3,2]],1],CyclesListCanonical[3]]]];
 BrauerCycles[4]=Evaluate[DeleteDuplicates[SortCycles1/@Join[{{{4}}},Flatten[Map[Flatten[Outer[Join[#1,#2,1]&,BrauerCycles[#[[1]]],BrauerCycles[#[[2]]],1],1]&,Rest@IntegerPartitions[4,2]],1],CyclesListCanonical[4]]]];
-(*BrauerCycles[5]=Evaluate[DeleteDuplicates[SortCycles1/@Join[{{{5}}},Flatten[Map[Flatten[Outer[Join[#1,#2,1]&,BrauerCycles[#[[1]]],BrauerCycles[#[[2]]],1],1]&,Rest@IntegerPartitions[5,2]],1],CyclesListCanonical[5]]]];
-BrauerCycles[6]=Evaluate[DeleteDuplicates[SortCycles1/@Join[{{{6}}},Flatten[Map[Flatten[Outer[Join[#1,#2,1]&,BrauerCycles[#[[1]]],BrauerCycles[#[[2]]],1],1]&,Rest@IntegerPartitions[6,2]],1],CyclesListCanonical[6]]]];
-BrauerCycles[7]=Evaluate[DeleteDuplicates[SortCycles1/@Join[{{{7}}},Flatten[Map[Flatten[Outer[Join[#1,#2,1]&,BrauerCycles[#[[1]]],BrauerCycles[#[[2]]],1],1]&,Rest@IntegerPartitions[7,2]],1],CyclesListCanonical[7]]]];
-BrauerCycles[8]=Evaluate[DeleteDuplicates[SortCycles1/@Join[{{{8}}},Flatten[Map[Flatten[Outer[Join[#1,#2,1]&,BrauerCycles[#[[1]]],BrauerCycles[#[[2]]],1],1]&,Rest@IntegerPartitions[8,2]],1],CyclesListCanonical[8]]]];
-BrauerCycles[9]=Evaluate[DeleteDuplicates[SortCycles1/@Join[{{{9}}},Flatten[Map[Flatten[Outer[Join[#1,#2,1]&,BrauerCycles[#[[1]]],BrauerCycles[#[[2]]],1],1]&,Rest@IntegerPartitions[9,2]],1],CyclesListCanonical[9]]]];
-BrauerCycles[10]=Evaluate[DeleteDuplicates[SortCycles1/@Join[{{{10}}},Flatten[Map[Flatten[Outer[Join[#1,#2,1]&,BrauerCycles[#[[1]]],BrauerCycles[#[[2]]],1],1]&,Rest@IntegerPartitions[10,2]],1],CyclesListCanonical[10]]]];*)
-BrauerCycles[n_Integer?(#>4&)]:=Module[{intpart2=Rest@IntegerPartitions[n,2],listbcycles},
+
+BrauerCycles[n_Integer?(#>4&)]:=BrauerCycles[n]=Module[{intpart2=Rest@IntegerPartitions[n,2],listbcycles},
 listbcycles=Map[If[#[[1]]<(2*n)/3,{Join[{{{#[[1]]}}},CyclesListCanonical[#[[1]]]],Join[{{{#[[2]]}}},CyclesListCanonical[#[[2]]]]},If[#[[1]]==n-1,{BrauerCycles[#[[1]]],BrauerCycles[#[[2]]]},{SelectShapes[BrauerCycles[#[[1]]],IntegerPart[#[[1]]/2]],Join[{{{#[[2]]}}},CyclesListCanonical[#[[2]]]]}]]&,intpart2];
 DeleteDuplicates[SortCycles1/@Join[{{{n}}},Flatten[Map[Flatten[Outer[Join[#1,#2,1]&,#[[1]],#[[2]],1],1]&,listbcycles],1],CyclesListCanonical[n]]]];
 
 BrauerCycles[nbrauer_Integer,1]:=DeleteDuplicates[SortCycles1/@Join[Flatten[Map[Flatten[Outer[Join[#1,#2,1]&,Split@CyclesListCanonical[#[[1]],1],BrauerCycles[#[[2]],0],1],1]&,Flatten[Permutations/@(Rest@IntegerPartitions[nbrauer,2]),1]],1],Split@CyclesListCanonical[nbrauer,1]]];
 
-BrauerCycles[nbrauer_Integer,narcs_Integer]:=Module[{res,listshapes
+BrauerCycles[nbrauer_Integer,narcs_Integer]:=BrauerCycles[nbrauer,narcs]=Module[{res,listshapes
 },
 With[{listIntPartnbrauer=Select[Rest@IntegerPartitions[nbrauer,2],Plus@@{IntegerPart[#[[1]]/2],IntegerPart[#[[2]]/2]}>= narcs&],
 listIntPartnarccs=Flatten[Permutations/@(myIntegerPartition[2,narcs]),1]
@@ -1196,18 +1189,17 @@ If[symQ,res=SortBy[BrauerCycleToBracelet/@BrauerCycles[n],Narcs[#]||-Length[Sequ
 res=SortBy[Select[BrauerCycleToBracelet/@BrauerCycles[n],MemberQ[Flatten@@#,1]&],Narcs[#]||-Length[Sequence@@#]&]];
 Return[res,Module]
 ];
-BrauerTableaux1[n_Integer,narcs_Integer]:=Module[{symQ,symOnlyQ,symTabs,btabs},
-Return[SortBy[BrauerCycleToBracelet/@BrauerCycles[n,narcs],-Length[Sequence@@#]&],Module]
-];
+BrauerBracelets1[n_Integer,narcs_Integer]:=SortBy[BrauerCycleToBracelet/@BrauerCycles[n,narcs],-Length[Sequence@@#]&]
+
 BrauerBracelets[n_Integer,narcs_Integer]:=Module[{res},
 If[narcs==0,
 res=Bracelets/@Map[Map[ConstantArray[3,#]&,#]&,IntegerPartitions[n]],
 If[narcs==1,
-res=BrauerTableaux1[n,narcs],
+res=BrauerBracelets1[n,narcs],
 If[n>10 && narcs >IntegerPart[n/2]-1,
-res=BrauerTableaux1[n,narcs],
+res=BrauerBracelets1[n,narcs],
 If[n>14 && narcs >IntegerPart[n/2]-2,
-res=BrauerTableaux1[n,narcs],res=Select[BrauerBracelets[n],Count[Flatten[Sequence@@#],3]==n-2*narcs&]]]]];
+res=BrauerBracelets1[n,narcs],res=Select[BrauerBracelets[n],Count[Flatten[Sequence@@#],3]==n-2*narcs&]]]]];
 Return[res,Module]
 ];
 BrauerBracelets[n_Integer,n1_,n2_]:=Flatten[Map[BrauerBracelets[n,Sequence@@#]&,Range[n1,n2]]]
