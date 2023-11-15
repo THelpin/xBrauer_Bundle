@@ -1,0 +1,7 @@
+************************** version 0.2.0. ******************************************
+
+Change of function's names : 
+
+GLCentralIrreducibleProject[exp,mu] -> GLIsotypicProject[exp,mu]
+
+OCentralIrreducibleProject[exp,lambda,metric] -> OIsotypicProject[exp,lambda,metric]

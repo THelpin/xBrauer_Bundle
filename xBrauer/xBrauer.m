@@ -164,7 +164,10 @@ The function can be applied to any linear combination of ClassTensor objects.";
 SemiNormalYoungProject::usage="SemiNormalYoungProject[exp,tableau,indices] projects exp to the irreducible representation space parametrized by the standard tableau tab.";
 GeneralLinearGroup::usage="In SymmetricFunctions GeneralLinearGroup is a parameter for DimOfIrrep and for BranchingRule.";
 GLIrreducibleProject::usage="GLIrreducibleProject[exp,tableau,indices] projects exp to the irreducible space parametrized by tableau.";
-GLCentralIrreducibleProject::usage="GLCentralIrreducibleProject[exp,\[Lambda]] projects exp to the direct sum of equivalent irreducible space of GL parametrized by the partition \[Lambda].";
+GLIsotypicProject::usage="GLIsotypicProject[exp,\[Mu]] projects exp to the isotypic component with respect to the action of GL, parametrized by the partition \[Mu]. 
+In other words GLIsotypicProject[exp,\[Mu]] projects exp to the direct sum of equivalent irreducible GL-module parametrized by the partition \[Mu].";
+GLCentralIrreducibleProject::usage="GLCentralIrreducibleProject[exp,\[Mu]] projects exp to the isotypic component with respect to the action of GL, parametrized by the partition \[Mu]. 
+In other words GLCentralIrreducibleProject[exp,\[Mu]] projects exp to the direct sum of equivalent irreducible GL-module parametrized by the partition \[Mu].";
 GLIrrepsOfTensor::usage="GLIrrepsOfTensor[tensor] returns a list of partitions corresponding to the irreducible representations of GL (with multiplicities) associated with tensor.
 (** Remark on the limitations of this function **)
 This function analyses the symmetry of tensor, but exchange symmetries of n-tuple of indices are not taken into account yet. Therefore when a tensor has some exchange 
@@ -205,8 +208,13 @@ associated with tensor.
 The list of irreps is obtained by the branching rules from GL(N) to O(N) for N large enough. So OIrrepsOfTensor[tensor] has the same limitation as GLIrrepsOfTensor[tensor].
 Also the N-dependant restrictions on irreps (when N is small compare to the order of the tensor) are not implemented yet.";
 
-OCentralIrreducibleProject::usage="OCentralIrreducibleProject[exp,\[Lambda],metric] projects exp to the direct sum of equivalent irreducible tensor representation spaces of the
-orthogonal group parametrized by a partition \[Lambda]. Note that metric and indices are optional.";
+OIsotypicProject::usage="OIsotypicProject[exp,\[Lambda],metric] projects exp to the isotypic component parametrized by the partition \[Lambda], with respect to the action of O(d). 
+In other words, OIsotypicProject[exp,\[Lambda],metric] projects exp on the direct sum of equivalent irreducible tensor representation spaces parametrized by a partition \[Lambda], with respect to the
+orthogonal group. Note that metric is optional.";
+
+OCentralIrreducibleProject::usage="OCentralIrreducibleProject[exp,\[Lambda],metric] projects exp to the isotypic component parametrized by the partition \[Lambda], with respect to the action of O(d). 
+In other words, OCentralIrreducibleProject[exp,\[Lambda],metric] projects exp on the direct sum of equivalent irreducible tensor representation spaces parametrized by a partition \[Lambda], with respect to the
+orthogonal group. Note that metric is optional.";
 
 OIrreducibleProject::usage="OIrreducibleProject[exp,path,indices,metric] projects exp to the irreducible space parametrized by the Bratteli path of the Brauer
 algebra path. Note that path is a list of integer partitions which has to start by the partition {1}. The input metric is optional.";
@@ -228,6 +236,7 @@ InducedMetricQ::usage="InducedMetricQ[met] returns true if met is the induced me
 LeviCivitaQ::usage="LeviCivitaQ[covd,g] returns True if covd is the Levi-Civita connection associated with g. LeviCivitaQ[covd] returns True if covd is 
 the Levi-Civita connection associated with the metric MasterOf[covd] if any.";
 SafeCanonical::usage="SafeCanonical[e] is ToCanonical with the option UseMetricOnVBundle -> None";
+ConformalTransform::usage="ConformalTransform[exp,g,gc] apply the conformal rules from metric g to metric gc to exp.";
 (*TraceFreeQ::usage="TraceFreeQ[tensor[inds],met] returns True if the contraction with the metric met of any pair of the indices of tensor is zero.";*)
 
 
@@ -962,13 +971,19 @@ Print[exchangesym];
 
 
 (* ::Input::Initialization:: *)
-Options[GLCentralIrreducibleProject]:={Output->Tensor}
+Options[GLIsotypicProject]:={Output->Tensor}
 (****** Projection onto the direct sum of equivalent irreps *****)
-GLCentralIrreducibleProject[exp_,diagram:{___Integer},options:OptionsPattern[]]:=Module[{output},
+GLIsotypicProject[exp_,diagram:{___Integer},options:OptionsPattern[]]:=Module[{output},
 {output}=OptionValue[{GLIrreducibleProject},{options},{Output}];
 CentralYoungProject[exp,diagram,Output->output]]
 (***** Optimization from symmetries of tensor ***)
-GLCentralIrreducibleProject[exp:tensor_?xTensorQ[inds___],diagram:{___Integer},options:OptionsPattern[]]/;!MemberQ[GLIrrepsOfTensor[exp],diagram]:=0
+GLIsotypicProject[exp:tensor_?xTensorQ[inds___],diagram:{___Integer},options:OptionsPattern[]]/;!MemberQ[GLIrrepsOfTensor[exp],diagram]:=0;
+(***** GLCentralIrreducibleProject=GLIsotypicProject ***)
+Options[GLIsotypicProject]:={Output->Tensor}
+GLCentralIrreducibleProject[exp_,diagram:{___Integer},options:OptionsPattern[]]:=GLIsotypicProject[exp,diagram,options];
+GLCentralIrreducibleProject[exp:tensor_?xTensorQ[inds___],diagram:{___Integer},options:OptionsPattern[]]/;!MemberQ[GLIrrepsOfTensor[exp],diagram]:=0;
+
+
 
 
 (* ::Input::Initialization:: *)
@@ -1094,33 +1109,36 @@ OIrrepsOfTensor[exp:tensor_?xTensorQ[inds___]]:=SortBy[Flatten[Map[BranchingRule
 
 
 (* ::Input::Initialization:: *)
-OCentralIrreducibleProject[exp:tensor_?xTensorQ[inds___],\[Lambda]_List,rest___,options:OptionsPattern[]]/;!MemberQ[OIrrepsOfTensor[exp],\[Lambda]]:=0;
+OIsotypicProject[exp:tensor_?xTensorQ[inds___],\[Lambda]_List,rest___,options:OptionsPattern[]]/;!MemberQ[OIrrepsOfTensor[exp],\[Lambda]]:=0;
 
-Options[OCentralIrreducibleProject]:={Output->Tensor}
-OCentralIrreducibleProject[exp_,n_Integer,\[Lambda]_List,indices_List,metric_?MetricQ,dim_Symbol|dim_Integer|dim_Plus,options:OptionsPattern[]]:=Module[{output,tensors=Map[ToExpression[StringJoin["_",ToString[#]]]&,DeleteDuplicates[Head/@FindAllOfType[exp,Tensor]]]},
-{output}=OptionValue[{OCentralIrreducibleProject},{options},{Output}];
+Options[OIsotypicProject]:={Output->Tensor}
+OIsotypicProject[exp_,n_Integer,\[Lambda]_List,indices_List,metric_?MetricQ,dim_Symbol|dim_Integer|dim_Plus,options:OptionsPattern[]]:=Module[{output,tensors=Map[ToExpression[StringJoin["_",ToString[#]]]&,DeleteDuplicates[Head/@FindAllOfType[exp,Tensor]]]},
+{output}=OptionValue[{OIsotypicProject},{options},{Output}];
 If[output===ClassTensor,
 ToClassTensor[exp,CentralIdempotent[n,\[Lambda],dim]],
 With[{collectlist={Flatten[BilinearFormProducts[indices,metric,#]&/@Reverse[Range[IntegerPart[Length[indices]/2]]]],Sequence@@tensors}},
 Collect[TracePermuteIndices[exp,indices,CentralIdempotent[n,\[Lambda],dim],metric],collectlist,Factor]]]];
 
-OCentralIrreducibleProject[exp_,n_Integer,\[Lambda]_List,indices_List,metric_?MetricQ,options:OptionsPattern[]]:=OCentralIrreducibleProject[exp,n,\[Lambda],indices,metric,DimOfManifold@@DependenciesOfTensor[metric],options]
-OCentralIrreducibleProject[exp_,n_Integer,\[Lambda]_List,indices_List,dim_Symbol|dim_Integer|dim_Plus,options:OptionsPattern[]]:=With[{metric=BilinearFormsOfExpression[exp][[1]]},OCentralIrreducibleProject[exp,n,\[Lambda],indices,metric,dim,options]]
-OCentralIrreducibleProject[exp_,n_Integer,\[Lambda]_List,indices_List,options:OptionsPattern[]]:=OCentralIrreducibleProject[exp,n,\[Lambda],indices,DimOfVBundle[VBundleOfIndex[indices[[1]]]],options]
-OCentralIrreducibleProject[exp_,n_Integer,\[Lambda]_List,options:OptionsPattern[]]:=OCentralIrreducibleProject[exp,n,\[Lambda],List@@IndicesOf[Free][exp],options]
-OCentralIrreducibleProject[exp_,n_Integer,\[Lambda]_List,metric_?MetricQ,options:OptionsPattern[]]:=OCentralIrreducibleProject[exp,n,\[Lambda],List@@IndicesOf[Free][exp],metric,options]
-OCentralIrreducibleProject[exp_,\[Lambda]_List,rest___,options:OptionsPattern[]]:=OCentralIrreducibleProject[exp,Length[List@@IndicesOf[Free][exp]],\[Lambda],rest,options]
+OIsotypicProject[exp_,n_Integer,\[Lambda]_List,indices_List,metric_?MetricQ,options:OptionsPattern[]]:=OIsotypicProject[exp,n,\[Lambda],indices,metric,DimOfManifold@@DependenciesOfTensor[metric],options]
+OIsotypicProject[exp_,n_Integer,\[Lambda]_List,indices_List,dim_Symbol|dim_Integer|dim_Plus,options:OptionsPattern[]]:=With[{metric=BilinearFormsOfExpression[exp][[1]]},OIsotypicProject[exp,n,\[Lambda],indices,metric,dim,options]]
+OIsotypicProject[exp_,n_Integer,\[Lambda]_List,indices_List,options:OptionsPattern[]]:=OIsotypicProject[exp,n,\[Lambda],indices,DimOfVBundle[VBundleOfIndex[indices[[1]]]],options]
+OIsotypicProject[exp_,n_Integer,\[Lambda]_List,options:OptionsPattern[]]:=OIsotypicProject[exp,n,\[Lambda],List@@IndicesOf[Free][exp],options]
+OIsotypicProject[exp_,n_Integer,\[Lambda]_List,metric_?MetricQ,options:OptionsPattern[]]:=OIsotypicProject[exp,n,\[Lambda],List@@IndicesOf[Free][exp],metric,options]
+OIsotypicProject[exp_,\[Lambda]_List,rest___,options:OptionsPattern[]]:=OIsotypicProject[exp,Length[List@@IndicesOf[Free][exp]],\[Lambda],rest,options];
+(************* OCentralIrreducibleProject=OIsotypicProject ****************)
+Options[OCentralIrreducibleProject]:={Output->Tensor}
+OCentralIrreducibleProject[exp__,options:OptionsPattern[]]:=OIsotypicProject[exp,options]
 
 
 (* ::Input::Initialization:: *)
-(*OCentralIrreducibleProject0[exp_,n_,\[Lambda]_,indices_,metric_,dim_]:=TracePermuteIndices[exp,indices,CentralIdempotent[n,\[Lambda],dim],metric]*)
+(*OIsotypicProject0[exp_,n_,\[Lambda]_,indices_,metric_,dim_]:=TracePermuteIndices[exp,indices,CentralIdempotent[n,\[Lambda],dim],metric]*)
 
 
 (* ::Input::Initialization:: *)
 OIrreducibleProject[exp:tensor_?xTensorQ[inds___],path_List,rest___,options:OptionsPattern[]]/;!MemberQ[OIrrepsOfTensor[exp],Last[path]]:=0
 (*OIrreducibleProject[exp_,path_List,indices_List,metric_?MetricQ,dim_Symbol|dim_Integer|dim_Plus,options:OptionsPattern[]]:=Module[{lp=Length[path],tensors=Map[ToExpression[StringJoin["_",ToString[#]]]&,DeleteDuplicates[Head/@FindAllOfType[exp,Tensor]]],collectlist},
 collectlist={Flatten[xAct`xBrauer`Private`BilinearFormProducts[indices,metric,#]&/@Reverse[Range[IntegerPart[Length[indices]/2]]]],Sequence@@tensors};
-Collect[Fold[ContractMetric[ToCanonical[OCentralIrreducibleProject0[#1,Sequence@@#2,indices,metric,dim]]]&,exp,Rest@Thread[List[Range[lp],path]]],collectlist,Factor]]*)
+Collect[Fold[ContractMetric[ToCanonical[OIsotypicProject0[#1,Sequence@@#2,indices,metric,dim]]]&,exp,Rest@Thread[List[Range[lp],path]]],collectlist,Factor]]*)
 
 OIrreducibleProject[exp_,path_List,indices_List,metric_?MetricQ,dim_Symbol|dim_Integer|dim_Plus,options:OptionsPattern[]]:=Module[{lp=Length[path],tensors=Map[ToExpression[StringJoin["_",ToString[#]]]&,DeleteDuplicates[Head/@FindAllOfType[exp,Tensor]]],collectlist},
 collectlist={Flatten[xAct`xBrauer`Private`BilinearFormProducts[indices,metric,#]&/@Reverse[Range[IntegerPart[Length[indices]/2]]]],Sequence@@tensors};
@@ -1161,11 +1179,8 @@ metricQ= MetricOfCovD[covd]=!= Null
 },
 If[!TorsionQ[covd]&&(metricQ),
 	If[ToString[met]==ToString[metric],True,False],False]]
-
-
-(* ::Input::Initialization:: *)
-(*LeviCivitaQ[covd_?CovDQ,_]:=False
-LeviCivitaQ[covd_?CovDQ]:=LeviCivitaQ[covd,MasterOf[covd]]*)
+LeviCivitaQ[covd_?CovDQ]:=LeviCivitaQ[covd,MasterOf[covd]]
+LeviCivitaQ[covd_?CovDQ,_]:=False;
 
 
 (* ::Input::Initialization:: *)
@@ -1709,7 +1724,7 @@ RiemannName/:RiemannName[i1_,i2_,-i3_,i3_]:=0;
 RiemannName/:RiemannName[i1_,i2_,i3_,-i3_]:=0;
 ];
 
-(* 6. Only if there is a metric and no torsion the Ricci tensor is symmetric *)
+(* 6. Only if there is a metric and no torsion the Ricci tensor is symmetric; we use MakeRule without restrictions *)
 vanishQ=!curvQ||If[integerdimQ,dim<2,False];
 DefTensor[RicciName[-i1,-i2],DependenciesOfCovD[covd],If[metricQ&&!torQ,Symmetric[{1,2}],StrongGenSet[{},GenSet[]]],
 PrintAs:>GiveOutputString[Ricci,covd],
@@ -1720,7 +1735,7 @@ ProjectedWith:>If[projectedQ,{projector[i1,-i1d],projector[i2,-i2d]},{}],
 DefInfo:>If[info,{If[vanishQ,"",If[metricQ&&!torQ,"symmetric ","non-symmetric "]]<>"Ricci tensor",""},False],
 TensorID->{Ricci,covd}];
 If[!vanishQ,
-covd/:CurvatureRelations[covd,Riemann]=MakeRule[{RiemannName[-i1,-i2,-i3,i2],$RicciSign RicciName[-i1,-i3]},MetricOn->None,UseSymmetries->False,ContractMetrics->False];
+covd/:CurvatureRelations[covd,Riemann]=MakeRule[{RiemannName[-i1,-i2,-i3,i2],$RicciSign RicciName[-i1,-i3]},MetricOn->All,UseSymmetries->True,ContractMetrics->True];
 If[curvrels,
 If[info,Print["** DefCovD:  Contractions of Riemann automatically replaced by Ricci."]];
 prot=Unprotect[RiemannName];
@@ -1729,7 +1744,7 @@ Protect[Evaluate[prot]];
 ]
 ];
 
-(* 7. The Ricci scalar  *)
+(* 7. The Ricci scalar ; we use MakeRule without restrictions  *)
 If[metricQ,
 vanishQ=!curvQ||If[integerdimQ,dim<2,False];
 DefTensor[RicciScalarName[],DependenciesOfCovD[covd],
@@ -1739,7 +1754,7 @@ Master->covd,
 DefInfo:>If[info,{"Ricci scalar",""},False],
 TensorID->{RicciScalar,covd}];
 If[!vanishQ,
-covd/:CurvatureRelations[covd,Ricci]=SafeMakeRule[{invmetric[i1,i2]RicciName[-i1,-i2],RicciScalarName[]}];
+covd/:CurvatureRelations[covd,Ricci]=Join[MakeRule[{invmetric[i1,i2]RicciName[-i1,-i2],RicciScalarName[]}],MakeRule[{RicciName[-i1,i1],RicciScalarName[]}]];
 If[curvrels,
 If[info,Print["** DefCovD:  Contractions of Ricci automatically replaced by RicciScalar."]];
 prot=Unprotect[RicciName];
@@ -1748,7 +1763,7 @@ Protect[Evaluate[prot]];
 ]
 ]
 ];
-(* 8. The Einstein tensor  *)
+(* 8. The Einstein tensor ; we use MakeRule without restrictions   *)
 If[metricQ,
 vanishQ=!curvQ||If[integerdimQ,dim<3,False];
 DefTensor[EinsteinName[-i1,-i2],DependenciesOfCovD[covd],If[torQ,StrongGenSet[{},GenSet[]],Symmetric[{1,2}]],
@@ -1761,7 +1776,7 @@ DefInfo:>If[info,{If[vanishQ,"",If[torQ,"non-symmetric ","symmetric "]]<>"Einste
 TensorID->{Einstein,covd}];
 If[!vanishQ,
 prot=Unprotect[invmetric];
-AutomaticRules[invmetric,SafeMakeRule[{invmetric[i2,i3]covd[-i3][EinsteinName[-i1,-i2]],$TorsionSign invmetric[i2,i3]RicciName[-i4,-i2]TorsionName[i4,-i1,-i3]-$TorsionSign $RicciSign/2 invmetric[i2,i3]RiemannName[-i1,-i4,-i2,i5]TorsionName[i4,-i3,-i5]}],Verbose->False];
+AutomaticRules[invmetric,MakeRule[{invmetric[i2,i3]covd[-i3][EinsteinName[-i1,-i2]],$TorsionSign invmetric[i2,i3]RicciName[-i4,-i2]TorsionName[i4,-i1,-i3]-$TorsionSign $RicciSign/2 invmetric[i2,i3]RiemannName[-i1,-i4,-i2,i5]TorsionName[i4,-i3,-i5]}],Verbose->False];
 Protect[Evaluate[prot]];
 ]
 ];
@@ -2027,7 +2042,7 @@ head/:head[i___ ,i1_Symbol,j___,-i1_Symbol,k___]:=-head[i ,-i1,j,i1,k]
 
 
 (* ::Input::Initialization:: *)
-xTension["xMAG`xPert`",DefMetricPerturbation,"End"]:=xBrauerxPertDefMetricPerturbation;
+xTension["xBrauer`xPert`",DefMetricPerturbation,"End"]:=xBrauerxPertDefMetricPerturbation;
 
 
 (* ::Input::Initialization:: *)
