@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       158,          7]
-NotebookDataLength[   1349892,      32586]
+NotebookDataLength[   1349912,      32587]
 NotebookOptionsPosition[   1303734,      31845]
-NotebookOutlinePosition[   1304369,      31866]
-CellTagsIndexPosition[   1304326,      31863]
+NotebookOutlinePosition[   1304389,      31867]
+CellTagsIndexPosition[   1304346,      31864]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -31844,7 +31844,8 @@ Cell[BoxData[
 }, Open  ]]
 },
 WindowToolbars->{},
-WindowSize->{1440., 749.25},
+Evaluator->"Local",
+WindowSize->{1440., 746.25},
 WindowMargins->{{0, Automatic}, {Automatic, 27.75}},
 SpellingDictionaries->{"CorrectWords"->{
  "Contorsion", "Palatini", "Metricity", "Galileon", "Disformation", 
