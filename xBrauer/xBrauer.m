@@ -20,7 +20,7 @@
 
 
 (* ::Input::Initialization:: *)
-xAct`xBrauer`$Version={"0.1.0",{2022,28,10}};
+xAct`xBrauer`$Version={"1.1.0",{2023,11,29}};
 xAct`xBrauer`$xTensorVersionExpected={"1.2.0",{2021,10,17}};
 xAct`xTras`$xTrasVersionExpected={"1.0.6",{2014,10,30}};
 
@@ -48,7 +48,7 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
   
 (* :Context: xBrauer` *)
 
-(* :Package Version: 0.1.0 *)
+(* :Package Version: 1.1.0 *)
 
 (* :Copyright: T.Helpin (2020) *)
 

@@ -20,7 +20,7 @@
 
 
 (* ::Input::Initialization:: *)
-xAct`BrauerAlgebra`$Version={"1.0.0",{2023,24,02}}
+xAct`BrauerAlgebra`$Version={"1.1.0",{2023,11,25}}
 
 
 (* ::Input::Initialization:: *)
@@ -99,7 +99,7 @@ BrauerciteRobinson61=BrauerDOIToString["[Robinson 1961]","10.1017/CBO97811073407
 BrauerciteNazarov96=BrauerDOIToString["[Nazarov 1996]","10.1006/jabr.1996.0195"];
 BrauerciteCox09=BrauerDOIToString["[Cox&&De Visscher&&Martin 2007]","10.48550/arXiv.math/0601387"];
 BrauerciteRui05=BrauerDOIToString["[Rui 2005]","10.1016/j.jcta.2004.11.009"];
-BrauerciteWillenbring07=BrauerDOIToString["[Willenbring 2007]","10.1016/j.jalgebra.2007.04.014"];
+BrauerciteWillenbring01=BrauerDOIToString["[Willenbring 2001]","10.1006/jabr.2001.8828"];
 BrauerciteMacDonald95=BrauerDOIToString["[MacDonald 1995]","10.1112/blms/13.2.180"];
 BrauerciteFulton96=BrauerDOIToString["[Fulton 1996]","10.1017/CBO9780511626241"];
 BrauerciteMurphy81=BrauerDOIToString["[Murphy 1981]","10.1016/0021-8693(81)90205-2"];
@@ -147,7 +147,7 @@ PermToBrauer::usage="PermToBrauer[cycle,n]/PermToBrauer[list] transform a permut
 BrauerToPerm::usage="BrauerToPerm[d] translates a permutation in the BrauerList form d into the Cycles/PermutationList form of Mathematica.";
 BrauerDiagram::usage="BrauerDiagram[d] returns a BrauerGraph object corresponding to the BrauerList d in \!\(\*SubscriptBox[\(B\), \(n\)]\)(\!\(\*SubscriptBox[\(\[Delta]\), \(b\)]\)).";
 ToBrauerList::usage="ToBrauerList[x] returns the BrauerList associated to x where x can have the head BrauerGraph or Bracelets. 
-ToBrauerList[x,n] returns the BrauerList associated to x where x can have the head BrauerCycles, GeneratorTrace, GeneratorPerm, JucysMurphyS or JucysMurphyB.";
+ToBrauerList[x,n] returns the BrauerList associated to x where x can have the head BrauerCycles, GeneratorTrace, GeneratorPerm, JucysMurphyS or JucysMurphyB, Bracelets, ClassSum.";
 BrauerElements::usage="BrauerElements[n] returns a list of all basis vectors in the Brauer algebra \!\(\*SubscriptBox[\(B\), \(n\)]\)(\!\(\*SubscriptBox[\(\[Delta]\), \(b\)]\)),\
  namely the elements of the set of the disjoint union of pair partitions on 2n symbols.
 BrauerElements[n,f] returns the list of elements in \!\(\*SubscriptBox[\(B\), \(n\)]\)(\!\(\*SubscriptBox[\(\[Delta]\), \(b\)]\)) with f arcs.";
@@ -256,7 +256,7 @@ ToCanonicalBracelets::usage="ToCanonicalBracelets[bracelets] returns a canonical
 Flip::usage="Flip[d] flips the diagram d with respect to the horizontal line. Flip[bracelets] swaps the letters 1 and 2 in bracelets and returns a canonical representative.
 Flip[exp] flips all occurences of elements of the Brauer algebra or bracelets in exp.";
 InvolutionQ::usage="InvolutionQ[d] returns true if the element of \!\(\*SubscriptBox[\(B\), \(n\)]\)(\[Delta]) d is invariant under the flip operation.";
-NumberOfBracelets::usage=StringReplace["NumberOfBracelets[n] returns the number of conjugacy class \!\(\*SubscriptBox[\(B\), \(n\)]\)(\!\(\*SubscriptBox[\(\[Delta]\), \(b\)]\))"<>BrauerciteWillenbring07<>".",BrauerDocumentationReplacements];
+NumberOfBracelets::usage=StringReplace["NumberOfBracelets[n] returns the number of conjugacy class \!\(\*SubscriptBox[\(B\), \(n\)]\)(\!\(\*SubscriptBox[\(\[Delta]\), \(b\)]\))"<>BrauerciteWillenbring01<>".",BrauerDocumentationReplacements];
 ConjugacyClass::usage="ConjugacyClass[d] returns the list of the elements which are \!\(\*SubscriptBox[\(S\), \(n\)]\)-conjugate to d in \!\(\*SubscriptBox[\(B\), \(n\)]\)(\!\(\*SubscriptBox[\(\[Delta]\), \(b\)]\)). 
 ConjugacyClass[bracelets] returns the conjugacy class associated with the Bracelets bracelets.";
 ConjugacyClassSum::usage="ConjugacyClassSum[d] returns the sum of diagrams in the \!\(\*SubscriptBox[\(S\), \(n\)]\)-conjugacy class of d in \!\(\*SubscriptBox[\(B\), \(n\)]\)(\!\(\*SubscriptBox[\(\[Delta]\), \(b\)]\)). It can also be applied to Bracelets objects.";
@@ -272,18 +272,27 @@ StabilityIndex::usage="StabilitIndex[bracelet]";
 (**************** Algebra of Conjugacy classes and Traceless projectors *****************)
 (****************************************************************************************)
 (****************************************************************************************)
-StructureConstant::usage"StructureConstant[btab] return the structure constant matrix of the action of btab on the \!\(\*SubscriptBox[\(S\), \(n\)]\) centralizer of \!\(\*SubscriptBox[\(B\), \(n\)]\)(\!\(\*SubscriptBox[\(\[Delta]\), \(b\)]\)). 
+
+StructureConstant::usage"StructureConstant[bracelet] return the structure constant matrix of the action of bracelet on the \!\(\*SubscriptBox[\(S\), \(n\)]\) centralizer of \!\(\*SubscriptBox[\(B\), \(n\)]\)(\!\(\*SubscriptBox[\(\[Delta]\), \(b\)]\)). 
 This function admits three boolean options SymmetricGroup, FactorSpace, IdealSpace.";
 IdealSpace::usage="IdealSpace is booleen option for StructureConstant. Let J(f) in \!\(\*SubscriptBox[\(B\), \(n\)]\)(\!\(\*SubscriptBox[\(\[Delta]\), \(b\)]\)) be the space of diagram with at least f arcs.\
  There a chain of ideals in the Brauer algebra : J(n) \[Subset] J(n-1) \[Subset] ... \[Subset] J(1) \[Subset] J(0)=\!\(\*SubscriptBox[\(B\), \(n\)]\)(\!\(\*SubscriptBox[\(\[Delta]\), \(b\)]\)).";
 FactorSpace::usage="FactorSpace is booleen option for ConjugacyClassRelations. One can define a product in the factor space consisting of \
 diagram with exaclty m arcs : J[m]=J(m)/J(m+1). For example the symmetric group algebra is \!\(\*SubscriptBox[\(B\), \(n\)]\)(\!\(\*SubscriptBox[\(\[Delta]\), \(b\)]\))/J(1).";
-ConjugacyClassProduct::usage="ConjugacyClassProduct[tab1,tab2], performs the product the conjugacy class sum associated to the Bracelets tab1
- with the one associated to the Bracelets tab2. This function is optimized for the conjugacy class sum \!\(\*SubscriptBox[\(A\), \(n\)]\)(1) and \!\(\*SubscriptBox[\(T\), \(n\)]\)(1)(AClass[n,1] and TClass[n,1]) which are the most simple transposition class sums.";
+ConjugacyClassProduct::usage="ConjugacyClassProduct[bracelet1,bracelet2], performs the product of the conjugacy class sum associated with the bracelet1
+ with the one associated with the bracelet2. The entries bracelets1 and bracelets2 have either the Head ClassSum or Bracelets. 
+This function is optimized for the conjugacy class sum \!\(\*SubscriptBox[\(A\), \(n\)]\)(1) and \!\(\*SubscriptBox[\(T\), \(n\)]\)(1)(AClass[n,1] and TClass[n,1]) which are the most simple transposition class sums.";
 ConjugacyClassRelations::usage="ConjugacyClassRelations[bracelets,{f1,f2}, dim] returns all product between the bracelets (Head Bracelets) and the others Brauer bracelets (with the same number letter as in bracelets)
  corresponding to the conjugacy class sums with f1 to f2 arcs using dim as the parameter for the product in \!\(\*SubscriptBox[\(B\), \(n\)]\)(\!\(\*SubscriptBox[\(\[Delta]\), \(b\)]\)). The default value for dim is \!\(\*SubscriptBox[\(\[Delta]\), \(b\)]\).
 ConjugacyClassRelations[bracelets,{f}, dim] is equivalent to ConjugacyClassRelations[bracelets,{f,f}, dim].
 ConjugacyClassRelations[bracelets,dim] returns all product relations between the class bracelets and others classes in the algebra of conjugacy classes.";
+
+(**** New Head ClassSum and related functions ****)
+ClassSum::usage="ClassSum is the Head for the conjugacy class sums of \!\(\*SubscriptBox[\(S\), \(n\)]\) and of \!\(\*SubscriptBox[\(B\), \(n\)]\). Use ClassSum[\[Mu]] to return the conjugacy class sum associated with \[Mu].
+Here \[Mu] is either an integer partition (in which case ClassSum[\[Mu]] belongs to the symmetric group algebra), or a ternary bracelets with the head Bracelets
+(in which case ClassSum[\[Mu]] belongs to the Brauer algebra).";
+ToClassSum::usage="ToClassSum[\[Mu]] returns ClassSum[\[Mu]] where \[Mu] is either an integer partition or a ternary bracelets with Head Bracelets.";
+
 (****************************************************************************************)
 (****************************************************************************************)
 (********************* Representation theory of the Brauer algebra **********************)
@@ -365,7 +374,7 @@ CentralIdempotent[n,f,\[Delta]] returns the sum of CentralIdempotent[n,\[Lambda]
 CentralIdempotent[n,f,\[Delta]] correspond to the (f+1)-traceless projectors with the convention of the package. The input \[Delta] is optional, the default value is BrauerParameter[].
 (* Case 2 : the product parameter \[Delta] in the Brauer Algebra is an integer *).";
 
-CentralIdempotentBranching::usage="CentralIdempotentBranching[n,{\[Mu],\[Lambda]},\[Delta]]";
+(*CentralIdempotentBranching::usage="CentralIdempotentBranching[n,{\[Mu],\[Lambda]},\[Delta]]";*)
 CanonicalPrimitiveIdempotent::usage=StringReplace["CanonicalPrimitiveIdempotent[n,path,\[Delta]] returns the canonical primitive idempotent in \!\(\*SubscriptBox[\(B\), \(n\)]\)(\[Delta]) associated  with
 the path path in the Bratteli diagram "<>BrauerciteDoty19<>".",BrauerDocumentationReplacements];
 
@@ -438,7 +447,7 @@ WeingartenO[btab]==WeingartenO[btab,\!\(\*SubscriptBox[\(\[Delta]\), \(b\)]\)]."
 
 (******************** At the end we delete the citation from the Names **************************)
 Remove["BrauerciteCollins06","BrauerciteJanusz66","BrauerciteKing16","BrauercitePuchala17","BrauerciteShalile13","BrauerDocumentationReplacements",
-"BrauerDOIToString","doi","text","BrauerciteCox09","BrauerciteNazarov96","BrauerciteRobinson61","BrauerciteRui05","BrauerciteSamra79","BrauerciteBrauer1937","BrauerciteWillenbring07","BrauerciteJucys74","BrauerciteMurphy81","BrauerciteFulton96",
+"BrauerDOIToString","doi","text","BrauerciteCox09","BrauerciteNazarov96","BrauerciteRobinson61","BrauerciteRui05","BrauerciteSamra79","BrauerciteBrauer1937","BrauerciteWillenbring01","BrauerciteJucys74","BrauerciteMurphy81","BrauerciteFulton96",
 "BrauerciteMacDonald95","BrauerciteBrown56","BrauerciteCollins09","BrauerciteRam95","BrauerciteShalile11","BrauerciteDoty19","BrauerciteBulgakova22"]
 
 
@@ -677,9 +686,10 @@ PermToBrauer[exp_]:=exp/.x_?PermutationListQ:>PermToBrauer0[x]
 
 
 (* ::Input::Initialization:: *)
-Flip0[BrauerList[list_]]:=BrauerList[Sort[Map[Sort[ChangeInteger[#]]&,list]]]
+Flip0[BrauerList[list_]]:=BrauerList[Sort[Map[Sort[ChangeInteger[#]]&,list]]];
+Flip0[perm_System`Cycles]:=InversePermutation[perm];
 Flip0[bracelets_Bracelets]:=ToCanonicalBracelets[bracelets/.{1->2,2->1}]
-Flip[exp_]:=exp/.x:BrauerList[list_]:>Flip0[x]/.y:Bracelets[list_]:>Flip0[y]
+Flip[exp_]:=exp/.x:BrauerList[list_]:>Flip0[x]/.y:Bracelets[list_]:>Flip0[y]/. y_System`Cycles:>Flip0[y]
 InvolutionQ[d_BrauerList]:=Flip0[d]===d;
 InvolutionQ[Bracelets[list_]]:=Max[Length/@list]==2;
 
@@ -776,10 +786,12 @@ ToGenerators[exp_]:=exp/.jm_JucysMurphyB:>ToGenerators0[jm];
 
 
 (* ::Input::Initialization:: *)
-ToBrauerList0[bracelets_Bracelets?(!SymmetricGroupQ[#]&)]:=ConjugacyClassSum[bracelets];
-ToBrauerList0[bracelets_Bracelets?(SymmetricGroupQ[#]&)]:=PermToBrauer[ConjugacyClassSum[bracelets],Length[Flatten@@bracelets]];
+ToBrauerList0[bracelets_Bracelets?(!SymmetricGroupQ[#]&)]:=ConjugacyClass[bracelets];
+ToBrauerList0[ClassSum[bracelets_Bracelets]]:=ConjugacyClassSum[bracelets];
+ToBrauerList0[ClassSum[\[Mu]_List]]:=ConjugacyClassSum[PartitionToBracelets[\[Mu]]];
+ToBrauerList0[bracelets_Bracelets?(SymmetricGroupQ[#]&)]:=PermToBrauer[ConjugacyClass[bracelets],Length[Flatten@@bracelets]];
 ToBrauerList[exp_,n_]:=exp/.x_BrauerCycles|x_GeneratorPerm|x_GeneratorTrace|x_JucysMurphyS|x_JucysMurphyB:>ToBrauerList0[x,n]
-ToBrauerList[exp_]:=exp/.x_BrauerGraph|x_Bracelets:>ToBrauerList0[x]
+ToBrauerList[exp_]:=exp/.x_BrauerGraph|x_Bracelets|x_ClassSum:>ToBrauerList0[x]
 
 
 (* ::Input::Initialization:: *)
@@ -1323,6 +1335,13 @@ ConjugacyClassSum[exp_]:=exp/.d_Bracelets|d_BrauerList:>ConjugacyClassSum0[d];
 
 
 (* ::Input::Initialization:: *)
+ClassSum/:MakeBoxes[ClassSum[i_List],StandardForm]:=SubscriptBox["K",MakeBoxes[i,StandardForm]];
+MakeExpression[SubscriptBox["K",i_],StandardForm]:=MakeExpression[RowBox[{"ClassSum","[",i,"]"}],StandardForm];
+ClassSum/:MakeBoxes[ClassSum[i_Bracelets],StandardForm]:=SubscriptBox["K",MakeBoxes[i,StandardForm]];
+MakeExpression[SubscriptBox["K",i_],StandardForm]:=MakeExpression[RowBox[{"ClassSum","[",i,"]"}],StandardForm];
+
+
+(* ::Input::Initialization:: *)
 CentralYoung/:MakeBoxes[CentralYoung[i_List],StandardForm]:=SubscriptBox[OverscriptBox["Z","_"],MakeBoxes[i,StandardForm]];
 MakeExpression[SubscriptBox[OverscriptBox["Z","_"],i_],StandardForm]:=MakeExpression[RowBox[{"CentralYoung","[",i,"]"}],StandardForm];
 
@@ -1480,6 +1499,33 @@ ConjugacyClassProduct[{\[Delta]_},tab1_Bracelets?(TClassQ[1,#]&),tab2_Bracelets]
 ConjugacyClassProduct[{\[Delta]_},tab1_Bracelets,tab2_Bracelets?(TClassQ[1,#]&)]:=TProductNormalized[tab1];
 ConjugacyClassProduct[{\[Delta]_},tab1_Bracelets?(TClassQ[1,#]&),tab2_Bracelets,options___?OptionQ]:=TProductNormalized[tab2];
 ConjugacyClassProduct[{\[Delta]_},tab1_Bracelets,tab2_Bracelets?(TClassQ[1,#]&),options___?OptionQ]:=TProductNormalized[tab1];
+(*********************** ClassSum Head *******************************)
+
+
+
+(* ::Input::Initialization:: *)
+TClassQ[nt_,\[Mu]_List]:=Max[\[Mu]]===2&&Count[\[Mu],2]==nt;
+
+
+(* ::Input::Initialization:: *)
+ConjugacyClassProduct[{\[Delta]_},ClassSum[\[Mu]1_List?(!TClassQ[1,#]&)],ClassSum[\[Mu]2_List?(!TClassQ[1,#]&)]]:=With[{n=Tr[\[Mu]1]},Map[ClassSum[#]&,IntegerPartitions[n]] . ConnectionCoefficientsClassProductSym[\[Mu]1,\[Mu]2,n]]
+BraceletsToClassSumSn0[bracelets_Bracelets]:=ClassSum[Length/@Sequence@@bracelets]
+BraceletsToClassSumSn[exp_]:=exp/.x_Bracelets:>BraceletsToClassSumSn0[x]
+ConjugacyClassProduct[{\[Delta]_},ClassSum[\[Mu]1_List?(TClassQ[1,#]&)],ClassSum[\[Mu]2_List]]:=BraceletsToClassSumSn[TProductNormalized[PartitionToBracelets[\[Mu]2]]];
+ConjugacyClassProduct[{\[Delta]_},ClassSum[\[Mu]1_List],ClassSum[\[Mu]2_List?(TClassQ[1,#]&)]]:=BraceletsToClassSumSn[TProductNormalized[PartitionToBracelets[\[Mu]1]]];
+
+
+(* ::Input::Initialization:: *)
+(************** Passing from IntegerPartitions/Bracelets to ClassSum *************)
+IntegerPartitionQ[\[Mu]_]:=ListQ[\[Mu]]&&AllTrue[\[Mu],IntegerQ]&&AllTrue[Differences[\[Mu]],#<=0&]
+ToClassSum0[bracelets_Bracelets]:=ClassSum[bracelets]
+ToClassSum0[\[Mu]_?IntegerPartitionQ]:=ClassSum[\[Mu]]
+ToClassSum[exp_]:=exp/.x_Bracelets|x_List?IntegerPartitionQ:>ToClassSum0[x]
+
+
+(* ::Input::Initialization:: *)
+(*********** ConjugacyClassProduct between ClassSum : this is the correct way of doing things ***********)
+ConjugacyClassProduct[{\[Delta]_},ClassSum[bra1_Bracelets],ClassSum[bra2_Bracelets]]:=ToClassSum[ConjugacyClassProduct[{\[Delta]},bra1,bra2 ]];
 
 
 (* ::Input::Initialization:: *)
@@ -2243,133 +2289,179 @@ SnTracelessProjector[n_,\[Mu]_List,options:OptionsPattern[]]:=SnTracelessProject
 
 
 (* ::Input::Initialization:: *)
-(************************************************)
-(****************** Initialization **************)
-(************************************************)
-CentralIdempotentBrauer0[2,1,{},dim_,rulesAClass_,options:OptionsPattern[]]:=1/dim*Bracelets[{{1,2}}]
-CentralIdempotentBrauer0[n_,0,\[Mu]_,dim_,rulesAClass_,options:OptionsPattern[]]/;Length[\[Mu]]==n:=CentralYoungProjector[\[Mu]]
-CentralIdempotentBrauer0[n_,0,\[Mu]_,dim_Symbol|dim_Plus|dim_Times,ruleAClass_,options:OptionsPattern[]]:=Module[{pairsOfpartition=Select[Flatten[PairsOfPartitions[n],1],#[[1]]===\[Mu]&],idclass=IdClass[n],Aclass=AClass[n,1],eigenvalues,ruleidclass,factors,ruleAclass=Flatten[ruleAClass]},
-(*Print[ruleAclass];*)
-eigenvalues=(EigenvaluesA[Sequence@@#,dim]&/@pairsOfpartition);
-factors=Join[Map[1-Aclass/(#)&,Most[eigenvalues]],{CentralYoungProjector[\[Mu]]-Collect[1/Last[eigenvalues]Distribute[Times[Aclass,CentralYoungProjector[\[Mu]]]]/.ruleAclass,{_Bracelets},Factor]}];
-(*ruleidclass={idclass*bra_Bracelets:>bra,bra_Bracelets*idclass:>bra,Power[idclass,n1_]:>idclass};*)
-Collect[Fold[Collect[(Expand[Times[#2,#1]])/.ruleAclass,{_Bracelets},Factor[#]&]&,Reverse@factors],{_Bracelets},Factor]
-]
-
-
-(* ::Input::Initialization:: *)
-CentralIdempotentBrauer0[n_,f_,list_,dim_Symbol|dim_Plus|dim_Times,rulesAClass_]:=Module[{pairsOfpartition=DeleteDuplicates[Select[PairsOfPartitions[n,f],#[[2]]===list&],EigenvaluesA[Sequence@@#1]==EigenvaluesA[Sequence@@#2]&],allpairs,idclass=IdClass[n],Aclass=AClass[n,1],evsA,previousct,eigenvalues,ruleidclass,normalizations,listprefactors,listfactors,AtimesPreviousct,ruleAClass=rulesAClass[[1]]},
-(*Print[pairsOfpartition];*)
-(*Print[Rest[rulesAClass]];*)
-previousct=ArcMergingFunction[CentralIdempotentBrauer0[n-2,f-1,list,dim,Rest[rulesAClass]]];
-(*Print[previousct];*)
-evsA=Map[EigenvaluesA[Sequence@@#,dim]&,pairsOfpartition];
-allpairs=Map[DeleteCases[pairsOfpartition,a_/;a===pairsOfpartition[[#]]]&,Range[Length[pairsOfpartition]]];
-(*Print[allpairs];
-Print[evsA];*)
-eigenvalues=Map[DeleteCases[Map[EigenvaluesA[Sequence@@#,dim]&,allpairs[[#]]],a_/;(a===evsA[[#]])]&,Range@Length[allpairs]];
-(*Print[eigenvalues];*)
-normalizations=Map[Product[eigenvalues[[#,i]]/(eigenvalues[[#,i]]-evsA[[#]]),{i,1,Length[eigenvalues[[#]]]}]/(evsA[[#]])&,Range@Length[pairsOfpartition]];
-AtimesPreviousct=Collect[Expand[Times[Aclass,previousct]]/.ruleAClass,{_Bracelets},Factor];
-(*Print[AtimesPreviousct];*)
-listfactors=Map[Join[Map[(1-1/#*Aclass)&,Most[eigenvalues[[#]]]],{Collect[previousct-1/Last[eigenvalues[[#]]]*AtimesPreviousct,{_Bracelets},Factor]}]&,Range@Length[allpairs]];
-(*Print[listfactors];*)
-Collect[Plus@@(normalizations . Map[Collect[Fold[Collect[(Expand[Times[#2,#1]])/.ruleAClass,{_Bracelets},Factor[#]&]&,Reverse@#],{_Bracelets},Factor]&,listfactors]),{_Bracelets},Factor]
-]
-
-
-(* ::Input::Initialization:: *)
 ArcMergingFunction0[x1:Bracelets[list_],1]:=With[{symfactor=Count[list,{1,2}]},(1+symfactor)*ToCanonicalBracelets[MergeBracelet[x1,Bracelets[{{1,2}}]]]]
 ArcMergingFunction[exp_]:=exp/.x:Bracelets[list_]:>ArcMergingFunction0[x,1]
 
 
 (* ::Input::Initialization:: *)
-ListChainnf[n_,f_]:=Thread[List[Reverse[Range[n-2f,n,2]],Reverse@Range[0,f,1]]]
-ChainOfClassesA[n_,f_]:=Map[AClass[#,1]&,Reverse@Range[n-2f,n,2]]
-RuleAClass[n_,f_,dim_]:=Flatten[Map[AClass[n,1]*#->ConjugacyClassProduct[{dim},AClass[n,1],#]&,BrauerBracelets[n,f,IntegerPart[n/2]]],1]
-
-
-(* ::Input::Initialization:: *)
-Options[CentralIdempotent]:={SchurWeylDual->OrthogonalGroup}
-CentralIdempotent[n_,f_Integer,list_,dim_Symbol|dim_Plus|dim_Times|dim_Integer,options:OptionsPattern[]]:=Module[{rulesClassA=Map[RuleAClass[#[[1]],#[[2]],dim]&,ListChainnf[n,f]]},
-CentralIdempotentBrauer0[n,f,list,dim,rulesClassA,options]
+MuPartitions[n_,\[Lambda]_]:=Module[{f=(n-Tr[\[Lambda]])/2,\[Nu]s},\[Nu]s=EvenPartition[f];
+DeleteDuplicates[Flatten[Map[LittlewoodRichardsonRule[\[Lambda],#]&,\[Nu]s],1]]
 ]
-CentralIdempotent[n_,f_Integer,list_List,options:OptionsPattern[]]:=CentralIdempotent[n,f,list,BrauerParameter[],options];
-CentralIdempotent[n_,f_Integer,dim_Symbol|dim_Plus|dim_Times|dim_Integer,options:OptionsPattern[]]:=With[{list\[Lambda]=IntegerPartitions[n-2f],rulesAClass=Map[RuleAClass[#[[1]],#[[2]],dim]&,ListChainnf[n,f]]},
-Collect[Sum[CentralIdempotentBrauer0[n,f,list\[Lambda][[i]],dim,rulesAClass,options],{i,1,Length[list\[Lambda]]}],{_Bracelets},Factor]];
-CentralIdempotent[n_,f_Integer,options:OptionsPattern[]]:=CentralIdempotent[n,f,BrauerParameter[],options];
-(*********** No f in the input **********)
-CentralIdempotent[n_,list_List,rest___,options:OptionsPattern[]]:=CentralIdempotent[n,(n-Plus@@list)/2,list,rest,options]
 
 
 (* ::Input::Initialization:: *)
 (************************************************)
 (****************** Initialization **************)
 (************************************************)
-CentralIdempotentBrauer0[n_,0,\[Mu]_,dim_Integer,ruleAClass_,options:OptionsPattern[]]:=Module[{pairsOfpartition=Select[Flatten[PairsOfPartitions[n],1],#[[1]]===\[Mu]&],idclass=IdClass[n],Aclass=AClass[n,1],eigenvalues,ruleidclass,factors,ruleAclass=Flatten[ruleAClass],schurweyl=SchurWeylDual/.CheckOptions[options]/. Options[CentralIdempotent]},
+Options[CentralIdempotent]:={SchurWeylDual->OrthogonalGroup}
+CentralIdempotent[2,{},dim_Symbol|dim_Plus|dim_Times,options:OptionsPattern[]]:=1/dim*Bracelets[{{1,2}}]
+CentralIdempotent[n_,\[Lambda]_List,dim_Symbol|dim_Plus|dim_Times,options:OptionsPattern[]]/;Length[\[Lambda]]==n:=CentralYoungProjector[\[Lambda]]
+CentralIdempotent[n_,\[Lambda]_List,dim_Symbol|dim_Plus|dim_Times,options:OptionsPattern[]]/;Tr[\[Lambda]]==n:=Module[{pairsOfpartition=Select[Flatten[PairsOfPartitions[n],1],#[[1]]===\[Lambda]&],Aclass=AClass[n,1],eigenvalues,factors,ruleAclass=ConjugacyClassRelations[AClass[n,1],dim,SymmetricGroup->True]/.HoldForm[ConjugacyClassProduct[{\[Delta]_},a_,b_]]:>Times[a,b]/.Equal->Rule},
+(*Print[ruleAclass];*)
+eigenvalues=(EigenvaluesA[Sequence@@#,dim]&/@pairsOfpartition);
+factors=Join[Map[1-Aclass/(#)&,Most[eigenvalues]],{CentralYoungProjector[\[Lambda]]-Collect[1/Last[eigenvalues]Distribute[Times[Aclass,CentralYoungProjector[\[Lambda]]]]/.ruleAclass,{_Bracelets},Factor]}];
+Collect[Fold[Collect[(Expand[Times[#2,#1]])/.ruleAclass,{_Bracelets},Factor[#]&]&,Reverse@factors],{_Bracelets},Factor]
+]
+
+
+(* ::Input::Initialization:: *)
+CentralIdempotentBranching[n_,{\[Mu]_List,\[Lambda]_List},dim_Symbol|dim_Plus|dim_Times,previousCentralIdempotent_,ruleProductAClass_,options:OptionsPattern[]]:=Module[{\[Rho]s=MuPartitions[n,\[Lambda]],evA=EigenvaluesA[\[Mu],\[Lambda],dim],\[Rho]sNew,factors,f=(n-Tr[\[Lambda]])/2,AtimespreviousCentralIdempotent,Aclass=AClass[n,1]},
+(*Print[\[Rho]s];*)
+\[Rho]sNew=Select[\[Rho]s,EigenvaluesA[#,\[Lambda],dim]=!=evA&];
+\[Rho]sNew=DeleteDuplicates[\[Rho]sNew,EigenvaluesA[#1,\[Lambda],dim]==EigenvaluesA[#2,\[Lambda],dim]&];
+(*If[n==9||n==10||n==11||n==12,Print["rho 2: ",\[Rho]sNew]];*)
+(*Print[evA];*)
+If[\[Rho]sNew==={},
+Return[previousCentralIdempotent/evA,Module]];
+(********* An * previousCentralIdempotent *******)
+AtimespreviousCentralIdempotent=Collect[Expand[Times[Aclass,previousCentralIdempotent]]/.ruleProductAClass,{_Bracelets},Factor];
+If[Length[\[Rho]sNew]===1,
+Return[Collect[(EigenvaluesA[\[Rho]sNew[[1]],\[Lambda],dim]*previousCentralIdempotent-AtimespreviousCentralIdempotent)/(evA*(EigenvaluesA[\[Rho]sNew[[1]],\[Lambda],dim]-evA)),{_Bracelets},Factor],Module];
+];
+factors=Join[{Collect[(EigenvaluesA[\[Rho]sNew[[1]],\[Lambda],dim]previousCentralIdempotent-AtimespreviousCentralIdempotent)/(evA*(EigenvaluesA[\[Rho]sNew[[1]],\[Lambda],dim]-evA)),{_Bracelets},Factor]},Map[(EigenvaluesA[#,\[Lambda],dim]-Aclass)/(EigenvaluesA[#,\[Lambda],dim]-evA)&,Rest[\[Rho]sNew]]];
+(*Print[factors];*)
+Return[Collect[(Fold[Collect[(Expand[Times[#2,#1]])/.ruleProductAClass,{_Bracelets},Factor]&,factors]),{_Bracelets},Factor],Module];
+]
+
+
+(* ::Input::Initialization:: *)
+CentralIdempotent[n_,\[Lambda]_List,dim_Symbol|dim_Plus|dim_Times,options:OptionsPattern[]]:=Module[{\[Mu]s=MuPartitions[n,\[Lambda]],previousCentralIdempotent=ArcMergingFunction[CentralIdempotent[n-2,\[Lambda],dim]],ruleProductAClass=ConjugacyClassRelations[AClass[n,1],{(n-Tr[\[Lambda]])/2,IntegerPart[n/2]},dim]/.HoldForm[ConjugacyClassProduct[{\[Delta]_},a_,b_]]:>Times[a,b]/.Equal->Rule,\[Mu]sNew},
+\[Mu]sNew=DeleteDuplicates[\[Mu]s,EigenvaluesA[#1,\[Lambda],dim]==EigenvaluesA[#2,\[Lambda],dim]&];
+Collect[Plus@@Map[CentralIdempotentBranching[n,{#,\[Lambda]},dim,previousCentralIdempotent,ruleProductAClass,options]&,\[Mu]sNew],{_Bracelets},Factor]
+]
+CentralIdempotent[n_,\[Lambda]_List,options:OptionsPattern[]]:=CentralIdempotent[n,\[Lambda],BrauerParameter[],options];
+(************ f in the input *************)
+CentralIdempotent[n_,f_Integer,\[Lambda]_List,dim_Symbol|dim_Plus|dim_Times,options:OptionsPattern[]]/;f==(n-Plus@@\[Lambda])/2:=CentralIdempotent[n,\[Lambda],dim,options];
+CentralIdempotent::f="The parameter f=`1` is not compatible with the partition `2`.";
+CentralIdempotent[n_,f_Integer,\[Lambda]_List,dim_Symbol|dim_Plus|dim_Times,options:OptionsPattern[]]/;f!=(n-Plus@@\[Lambda])/2:=Throw@Message[CentralIdempotent::f,f,\[Lambda]];
+CentralIdempotent[n_,f_Integer,\[Lambda]_List,options:OptionsPattern[]]:=CentralIdempotent[n,f,\[Lambda],BrauerParameter[],options];
+(************ (f+1)-traceless idempotents *************)
+CentralIdempotent[n_,f_Integer,dim_Symbol|dim_Plus|dim_Times,options:OptionsPattern[]]:=With[{list\[Lambda]=IntegerPartitions[n-2f]},
+Collect[Sum[CentralIdempotent[n,list\[Lambda][[i]],dim,options],{i,1,Length[list\[Lambda]]}],{_Bracelets},Factor]];
+CentralIdempotent[n_,f_Integer,options:OptionsPattern[]]:=CentralIdempotent[n,f,BrauerParameter[],options];
+
+
+(* ::Input::Initialization:: *)
+(********** Private function **********)
+CentralIdempotentInduction[n_,\[Lambda]_List,dim_Symbol|dim_Plus|dim_Times,previousCentralIdempotent_,options:OptionsPattern[]]:=Module[{\[Mu]s=MuPartitions[n,\[Lambda]],ArcMergedpreviousCentralIdempotent=ArcMergingFunction[previousCentralIdempotent],ruleProductAClass=ConjugacyClassRelations[AClass[n,1],{(n-Tr[\[Lambda]])/2,IntegerPart[n/2]},dim]/.HoldForm[ConjugacyClassProduct[{\[Delta]_},a_,b_]]:>Times[a,b]/.Equal->Rule,\[Mu]sNew},
+\[Mu]sNew=DeleteDuplicates[\[Mu]s,EigenvaluesA[#1,\[Lambda],dim]==EigenvaluesA[#2,\[Lambda],dim]&];
+Collect[Plus@@Map[CentralIdempotentBranching[n,{#,\[Lambda]},dim,ArcMergedpreviousCentralIdempotent,ruleProductAClass,options]&,\[Mu]sNew],{_Bracelets},Factor]
+]
+CentralIdempotentInduction[n_,\[Lambda]_List,previousCentralIdempotent_,options:OptionsPattern[]]:=CentralIdempotentInduction[n,\[Lambda],BrauerParameter[],previousCentralIdempotent,options]
+
+
+(* ::Input::Initialization:: *)
+MuPartitions[n_,\[Lambda]_,dim_Integer]:=Module[{f=(n-Tr[\[Lambda]])/2,\[Nu]s,\[Mu]s0},\[Nu]s=EvenPartition[f];
+\[Mu]s0=DeleteDuplicates[Flatten[Map[LittlewoodRichardsonRule[\[Lambda],#]&,\[Nu]s],1]];
+Select[Select[\[Mu]s0,EigenvaluesA[#,\[Lambda],dim]>0&],TransposePartition[#][[1]]<=dim&]
+]
+
+
+(* ::Input::Initialization:: *)
+(************************************************)
+(****************** Initialization **************)
+(************************************************)
+CentralIdempotent[2,{},dim_Integer,options:OptionsPattern[]]:=1/dim*Bracelets[{{1,2}}]
+CentralIdempotent[n_,\[Lambda]_,dim_Integer,options:OptionsPattern[]]/;Tr[\[Lambda]]==n:=Module[{eigenvalues,ruleidclass,factors,schurweyl=SchurWeylDual/.CheckOptions[options]/. Options[CentralIdempotent]},
+If[schurweyl===OrthogonalGroup,
+If[!BrauerModuleRestrictionO[\[Lambda],dim],Return[0,Module]]];
+If[Length[\[Lambda]]==n,Return[CentralYoungProjector[\[Lambda]],Module]];
+With[{pairsOfpartition=Select[Flatten[PairsOfPartitions[n],1],#[[1]]===\[Lambda]&],ruleAclass=ConjugacyClassRelations[AClass[n,1],dim,SymmetricGroup->True]/.HoldForm[ConjugacyClassProduct[{\[Delta]_},a_,b_]]:>Times[a,b]/.Equal->Rule,idclass=IdClass[n],Aclass=AClass[n,1]},
 (*Print[ruleAclass];*)
 If[schurweyl===OrthogonalGroup,
 eigenvalues=DeleteCases[EigenvaluesA[Sequence@@#,dim]&/@pairsOfpartition,a_?(#<=0&)],
 eigenvalues=DeleteCases[EigenvaluesA[Sequence@@#,dim]&/@pairsOfpartition,0]
 ];
-If[eigenvalues==={},Return[CentralYoungProjector[\[Mu]],Module]];
-factors=Join[Map[1-Aclass/(#)&,Most[eigenvalues]],{CentralYoungProjector[\[Mu]]-Collect[1/Last[eigenvalues]Distribute[Times[Aclass,CentralYoungProjector[\[Mu]]]]/.ruleAclass,{_Bracelets},Factor]}];
-(*ruleidclass={idclass*bra_Bracelets:>bra,bra_Bracelets*idclass:>bra,Power[idclass,n1_]:>idclass};*)
+If[eigenvalues==={},Return[CentralYoungProjector[\[Lambda]],Module]];
+factors=Join[Map[1-Aclass/(#)&,Most[eigenvalues]],{CentralYoungProjector[\[Lambda]]-Collect[1/Last[eigenvalues]Distribute[Times[Aclass,CentralYoungProjector[\[Lambda]]]]/.ruleAclass,{_Bracelets},Factor]}];
 Collect[Fold[Collect[(Distribute[Times[#2,#1]])/.ruleAclass,{_Bracelets},Factor[#]&]&,Reverse@factors],{_Bracelets},Factor]
 ]
-
-
-(* ::Input::Initialization:: *)
-CentralIdempotentBrauer0[n_,f_,list_,dim_Integer,rulesAClass_,options:OptionsPattern[]]:=Module[{pairsOfpartition=DeleteDuplicates[Select[PairsOfPartitions[n,f],#[[2]]===list&],EigenvaluesA[Sequence@@#1]==EigenvaluesA[Sequence@@#2]&],allpairs,idclass=IdClass[n],Aclass=AClass[n,1],evsA,previousct,eigenvalues,ruleidclass,normalizations,listprefactors,listfactors,AtimesPreviousct,ruleAClass=rulesAClass[[1]],schurweyl=SchurWeylDual/.CheckOptions[options]/. Options[CentralIdempotent]},
-(*Print[pairsOfpartition];*)
-(*Print[Rest[rulesAClass]];*)
-previousct=ArcMergingFunction[CentralIdempotentBrauer0[n-2,f-1,list,dim,Rest[rulesAClass]],options];
-(*Print[previousct];*)
-If[schurweyl===OrthogonalGroup,
-evsA=DeleteCases[Map[EigenvaluesA[Sequence@@#,dim]&,pairsOfpartition],a_?(#<=0&)],
-evsA=DeleteCases[Map[EigenvaluesA[Sequence@@#,dim]&,pairsOfpartition],0]
-];
-allpairs=Map[DeleteCases[pairsOfpartition,a_/;a===pairsOfpartition[[#]]]&,Range[Length[pairsOfpartition]]];
-(*Print[allpairs];
-Print[evsA];*)
-If[schurweyl===OrthogonalGroup,
-eigenvalues=Map[DeleteCases[DeleteCases[Map[EigenvaluesA[Sequence@@#,dim]&,allpairs[[#]]],a_/;(a===evsA[[#]])],a_?(#<=0&)]&,Range@Length[allpairs]],
-eigenvalues=Map[DeleteCases[DeleteCases[Map[EigenvaluesA[Sequence@@#,dim]&,allpairs[[#]]],a_/;(a===evsA[[#]])],0]&,Range@Length[allpairs]]];
-(*Print[eigenvalues];*)
-normalizations=Map[Product[eigenvalues[[#,i]]/(eigenvalues[[#,i]]-evsA[[#]]),{i,1,Length[eigenvalues[[#]]]}]/(evsA[[#]])&,Range@Length[pairsOfpartition]];
-AtimesPreviousct=Collect[Expand[Times[Aclass,previousct]]/.ruleAClass,{_Bracelets},Factor];
-(*Print[AtimesPreviousct];*)
-listfactors=Map[Join[Map[(1-1/#*Aclass)&,Most[eigenvalues[[#]]]],{Collect[previousct-1/Last[eigenvalues[[#]]]*AtimesPreviousct,{_Bracelets},Factor]}]&,Range@Length[allpairs]];
-(*Print[listfactors];*)
-Collect[Plus@@(normalizations . Map[Collect[Fold[Collect[(Expand[Times[#2,#1]])/.ruleAClass,{_Bracelets},Factor[#]&]&,Reverse@#],{_Bracelets},Factor]&,listfactors]),{_Bracelets},Factor]
 ]
 
 
 (* ::Input::Initialization:: *)
-CentralIdempotentBranching::partition="The partition `1` is not an integer partition of `2`.";
-
-
-(* ::Input::Initialization:: *)
-CentralIdempotentBranching[n_,f_,{\[Mu]_List,\[Lambda]_List},dim_Symbol|dim_Plus|dim_Times|dim_Integer,options:OptionsPattern[]]/;!MemberQ[BranchingRule[\[Mu],GeneralLinearGroup,OrthogonalGroup],\[Lambda]]:=0;
-CentralIdempotentBranching[n_,0,{\[Mu]_List,\[Lambda]_List},dim_Symbol|dim_Plus|dim_Times|dim_Integer,options:OptionsPattern[]]/;\[Mu]=!=\[Lambda]:=0
-CentralIdempotentBranching[n_,0,{\[Mu]_List,\[Lambda]_List},dim_Symbol|dim_Plus|dim_Times|dim_Integer,options:OptionsPattern[]]/;\[Mu]===\[Lambda]:=CentralIdempotent[n,0,\[Mu],dim,options];
-CentralIdempotentBranching[n_,f_,{\[Mu]_List,\[Lambda]_List},dim_Symbol|dim_Plus|dim_Times|dim_Integer,options:OptionsPattern[]]:=Module[{n\[Mu]=Tr[\[Mu]],ev=EigenvaluesA[\[Mu],\[Lambda],dim],spec\[Lambda]=Map[EigenvaluesA[#[[1]],#[[2]],dim]&,DeleteDuplicates[Select[PairsOfPartitions[n,f],#[[2]]===\[Lambda]&],EigenvaluesA[Sequence@@#1]==EigenvaluesA[Sequence@@#2]&]],factors,previousCentralIdempotent,Aclass=AClass[n,1],lev,
-ruleProductAClass=ConjugacyClassRelations[AClass[n,1],dim,SymmetricGroup->False]/.HoldForm[ConjugacyClassProduct[{\[Delta]_},a_,b_]]:>Times[a,b]/.Equal->Rule,normalization,AtimespreviousCentralIdempotent},
-If[n\[Mu]!=n,Throw@Message[CentralIdempotentBranching::partition,\[Mu],n]];
-spec\[Lambda]=DeleteCases[spec\[Lambda],ev];
-lev=Last[spec\[Lambda]];
+(********** Not used in the algorithm ***********)
+CentralIdempotentBranching[n_,{\[Mu]_List,\[Lambda]_List},dim_Integer,options:OptionsPattern[]]:=If[!MemberQ[BranchingRule[\[Mu],GeneralLinearGroup,OrthogonalGroup],\[Lambda]],0,Module[{\[Rho]s=MuPartitions[n,\[Lambda],dim],ruleProductAClass=ConjugacyClassRelations[AClass[n,1],dim,SymmetricGroup->False]/.HoldForm[ConjugacyClassProduct[{\[Delta]_},a_,b_]]:>Times[a,b]/.Equal->Rule,evA=EigenvaluesA[\[Mu],\[Lambda],dim],\[Rho]sNew,factors,f=(n-Tr[\[Lambda]])/2,previousCentralIdempotent,AtimespreviousCentralIdempotent,Aclass=AClass[n,1]},
+(*Print[\[Rho]s];*)
+\[Rho]sNew=Select[\[Rho]s,EigenvaluesA[#,\[Lambda],dim]=!=evA&];
+(*Print[\[Rho]sNew];*)
+(*Print[evA];*)
+(************* Central idempotent n-2 ****************)
 previousCentralIdempotent=ArcMergingFunction[CentralIdempotent[n-2,f-1,\[Lambda],dim]];
+If[\[Rho]sNew==={},
+Return[previousCentralIdempotent/evA,Module]];
 AtimespreviousCentralIdempotent=Collect[Expand[Times[Aclass,previousCentralIdempotent]]/.ruleProductAClass,{_Bracelets},Factor];
-factors=Join[{Collect[previousCentralIdempotent-AtimespreviousCentralIdempotent/(lev),{_Bracelets},Factor]},Map[1-1/#*Aclass&,Most[spec\[Lambda]]]];
-normalization=1/ev*Product[spec\[Lambda][[i]]/(spec\[Lambda][[i]]-ev),{i,1,Length[spec\[Lambda]]}];
-(*Print[spec\[Lambda]];
-Print[ev];*)
+(************* Formula ****************************)
+If[Length[\[Rho]sNew]===1,
+Return[Collect[(EigenvaluesA[\[Rho]sNew[[1]],\[Lambda],dim]previousCentralIdempotent-AtimespreviousCentralIdempotent)/(evA*(EigenvaluesA[\[Rho]sNew[[1]],\[Lambda],dim]-evA)),{_Bracelets},Factor],Module];
+];
+factors=Join[{Collect[(EigenvaluesA[\[Rho]sNew[[1]],\[Lambda],dim]previousCentralIdempotent-AtimespreviousCentralIdempotent)/(evA*(EigenvaluesA[\[Rho]sNew[[1]],\[Lambda],dim]-evA)),{_Bracelets},Factor]},Map[(EigenvaluesA[#,\[Lambda],dim]-Aclass)/(EigenvaluesA[#,\[Lambda],dim]-evA)&,Rest[\[Rho]sNew]]];
 (*Print[factors];*)
-(*Print[normalization];*)
-Collect[(normalization*Fold[Collect[(Expand[Times[#2,#1]])/.ruleProductAClass,{_Bracelets},Factor]&,factors]),{_Bracelets},Factor]
+Return[Collect[(Fold[Collect[(Expand[Times[#2,#1]])/.ruleProductAClass,{_Bracelets},Factor]&,factors]),{_Bracelets},Factor],Module];
 ]
-CentralIdempotentBranching[n_,{\[Mu]_List,\[Lambda]_List},dim_Symbol|dim_Plus|dim_Times|dim_Integer,options:OptionsPattern[]]:=CentralIdempotentBranching[n,(n-Tr[\[Lambda]])/2,{\[Mu],\[Lambda]},dim,options]
-CentralIdempotentBranching[n_,{\[Mu]_List,\[Lambda]_List},options:OptionsPattern[]]:=CentralIdempotentBranching[n,{\[Mu],\[Lambda]},BrauerParameter[],options]
+]
+(********** Used in the algorithm ***********)
+CentralIdempotentBranching[n_,{\[Mu]_List,\[Lambda]_List},dim_Integer,previousCentralIdempotent_,ruleProductAClass_,options:OptionsPattern[]]:=Module[{\[Rho]s=MuPartitions[n,\[Lambda],dim],evA=EigenvaluesA[\[Mu],\[Lambda],dim],\[Rho]sNew,factors,f=(n-Tr[\[Lambda]])/2,AtimespreviousCentralIdempotent,Aclass=AClass[n,1]},
+(*Print[\[Rho]s];*)
+\[Rho]sNew=Select[\[Rho]s,EigenvaluesA[#,\[Lambda],dim]=!=evA&];
+\[Rho]sNew=DeleteDuplicates[\[Rho]sNew,EigenvaluesA[#1,\[Lambda],dim]==EigenvaluesA[#2,\[Lambda],dim]&];
+(*If[n==9,Print[\[Rho]sNew]];*)
+(*Print[n,":",\[Rho]sNew];
+Print[n,":",evA];*)
+If[\[Rho]sNew==={},
+Return[previousCentralIdempotent/evA,Module]];
+(********* An * previousCentralIdempotent *******)
+AtimespreviousCentralIdempotent=Collect[Expand[Times[Aclass,previousCentralIdempotent]]/.ruleProductAClass,{_Bracelets},Factor];
+If[Length[\[Rho]sNew]===1,
+Return[Collect[(EigenvaluesA[\[Rho]sNew[[1]],\[Lambda],dim]*previousCentralIdempotent-AtimespreviousCentralIdempotent)/(evA*(EigenvaluesA[\[Rho]sNew[[1]],\[Lambda],dim]-evA)),{_Bracelets},Factor],Module];
+];
+factors=Join[{Collect[(EigenvaluesA[\[Rho]sNew[[1]],\[Lambda],dim]previousCentralIdempotent-AtimespreviousCentralIdempotent)/(evA*(EigenvaluesA[\[Rho]sNew[[1]],\[Lambda],dim]-evA)),{_Bracelets},Factor]},Map[(EigenvaluesA[#,\[Lambda],dim]-Aclass)/(EigenvaluesA[#,\[Lambda],dim]-evA)&,Rest[\[Rho]sNew]]];
+(*Print[factors];*)
+Return[Collect[(Fold[Collect[(Expand[Times[#2,#1]])/.ruleProductAClass,{_Bracelets},Factor]&,factors]),{_Bracelets},Factor],Module];
+]
+
+
+(* ::Input::Initialization:: *)
+CentralIdempotent[n_,\[Lambda]_List,dim_Integer,options:OptionsPattern[]]:=Module[{\[Mu]s=MuPartitions[n,\[Lambda],dim],previousCentralIdempotent,ruleProductAClass,\[Mu]sNew,schurweyl=SchurWeylDual/.CheckOptions[options]/. Options[CentralIdempotent]},
+If[schurweyl===OrthogonalGroup,
+If[!BrauerModuleRestrictionO[\[Lambda],dim],Return[0,Module]];
+ruleProductAClass=ConjugacyClassRelations[AClass[n,1],{(n-Tr[\[Lambda]])/2,IntegerPart[n/2]},dim]/.HoldForm[ConjugacyClassProduct[{\[Delta]_},a_,b_]]:>Times[a,b]/.Equal->Rule;
+previousCentralIdempotent=ArcMergingFunction[CentralIdempotent[n-2,\[Lambda],dim]];
+\[Mu]s=MuPartitions[n,\[Lambda],dim];
+\[Mu]sNew=DeleteDuplicates[\[Mu]s,EigenvaluesA[#1,\[Lambda],dim]==EigenvaluesA[#2,\[Lambda],dim]&];
+Collect[Plus@@Map[CentralIdempotentBranching[n,{#,\[Lambda]},dim,previousCentralIdempotent,ruleProductAClass,options]&,\[Mu]sNew],{_Bracelets},Factor]
+]
+]
+(************ f in the input *************)
+CentralIdempotent[n_,f_Integer,\[Lambda]_List,dim_Integer,options:OptionsPattern[]]/;f==(n-Plus@@\[Lambda])/2:=CentralIdempotent[n,\[Lambda],dim,options];
+CentralIdempotent::f="The parameter f=`1` is not compatible with the partition `2`.";
+CentralIdempotent[n_,f_Integer,\[Lambda]_List,dim_Symbol|dim_Plus|dim_Times,options:OptionsPattern[]]/;f!=(n-Plus@@\[Lambda])/2:=Throw@Message[CentralIdempotent::f,f,\[Lambda]];
+(************ (f+1)-traceless idempotents *************)
+CentralIdempotent[n_,f_Integer,dim_Integer,options:OptionsPattern[]]:=With[{list\[Lambda]=IntegerPartitions[n-2f]},
+Collect[Sum[CentralIdempotent[n,list\[Lambda][[i]],dim,options],{i,1,Length[list\[Lambda]]}],{_Bracelets},Factor]];
+
+
+(* ::Input::Initialization:: *)
+(********** Private function **********)
+CentralIdempotentInduction[n_,\[Lambda]_List,dim_Integer,previousCentralIdempotent_,options:OptionsPattern[]]:=Module[{\[Mu]s=MuPartitions[n,\[Lambda],dim],ArcMergedpreviousCentralIdempotent=ArcMergingFunction[previousCentralIdempotent],ruleProductAClass,\[Mu]sNew,schurweyl=SchurWeylDual/.CheckOptions[options]/. Options[CentralIdempotent]},
+If[schurweyl===OrthogonalGroup,
+If[!BrauerModuleRestrictionO[\[Lambda],dim],Return[0,Module]];
+ruleProductAClass=ConjugacyClassRelations[AClass[n,1],{(n-Tr[\[Lambda]])/2,IntegerPart[n/2]},dim]/.HoldForm[ConjugacyClassProduct[{\[Delta]_},a_,b_]]:>Times[a,b]/.Equal->Rule;
+\[Mu]s=MuPartitions[n,\[Lambda],dim];
+\[Mu]sNew=DeleteDuplicates[\[Mu]s,EigenvaluesA[#1,\[Lambda],dim]==EigenvaluesA[#2,\[Lambda],dim]&];
+Collect[Plus@@Map[CentralIdempotentBranching[n,{#,\[Lambda]},dim,ArcMergedpreviousCentralIdempotent,ruleProductAClass,options]&,\[Mu]sNew],{_Bracelets},Factor]
+]
+]
 
 
 (* ::Input::Initialization:: *)
@@ -2388,9 +2480,16 @@ TraceProjector[n_,{N_Integer|N_Symbol|N_Plus|N_Times},options:OptionsPattern[]]:
 (* ::Input::Initialization:: *)
 CanonicalPrimitiveIdempotent::Brauer="There number of partition in `1` is not equal to `2`.";
 CanonicalPrimitiveIdempotent[n_,path_List,rest___]/;Length[path]!=n:=Throw[Message[CanonicalPrimitiveIdempotent::Brauer,path,n]]
-CanonicalPrimitiveIdempotent[n_,path_List,dim_Symbol|dim_Integer|dim_Plus]/;DimOfIrrepBn[n,Last[path]]==1:=Collect[PermToBrauer[ConjugacyClassSum[CentralIdempotent[n,Last[path],dim]],n],{_BrauerList},Factor];
-CanonicalPrimitiveIdempotent[n_,path_List,dim_Symbol|dim_Integer|dim_Plus]:=CanonicalPrimitiveIdempotent[n,path,dim]=Collect[BrauerProduct[{dim},MergeBrauer[CanonicalPrimitiveIdempotent[n-1,Most[path],dim],IdentityBrauer[1]],ConjugacyClassSum[CentralIdempotent[n,Last[path],dim]]],{_BrauerList},Factor];
+CanonicalPrimitiveIdempotent[n_,path_List,dim_Symbol|dim_Times|dim_Plus]/;DimOfIrrepBn[n,Last[path]]==1:=Collect[PermToBrauer[ConjugacyClassSum[CentralIdempotent[n,Last[path],dim]],n],{_BrauerList},Factor];
+CanonicalPrimitiveIdempotent[n_,path_List,dim_Symbol|dim_Times|dim_Plus]:=CanonicalPrimitiveIdempotent[n,path,dim]=Collect[BrauerProduct[{dim},MergeBrauer[CanonicalPrimitiveIdempotent[n-1,Most[path],dim],IdentityBrauer[1]],ConjugacyClassSum[CentralIdempotent[n,Last[path],dim]]],{_BrauerList},Factor];
 CanonicalPrimitiveIdempotent[n_,path_List]:=CanonicalPrimitiveIdempotent[n,path,BrauerParameter[]]
+
+
+(* ::Input::Initialization:: *)
+CanonicalPrimitiveIdempotent[n_,path_List,rest___]/;Length[path]!=n:=Throw[Message[CanonicalPrimitiveIdempotent::Brauer,path,n]]
+CanonicalPrimitiveIdempotent[n_,path_List,dim_Integer]/;!AllTrue[Map[BrauerModuleRestrictionO[#,dim]&,path],#&]:=0;
+CanonicalPrimitiveIdempotent[n_,path_List,dim_Integer]/;DimOfIrrepBn[n,Last[path]]==1:=Collect[PermToBrauer[ConjugacyClassSum[CentralIdempotent[n,Last[path],dim]],n],{_BrauerList},Factor];
+CanonicalPrimitiveIdempotent[n_,path_List,dim_Integer]:=CanonicalPrimitiveIdempotent[n,path,dim]=Collect[BrauerProduct[{dim},MergeBrauer[CanonicalPrimitiveIdempotent[n-1,Most[path],dim],IdentityBrauer[1]],ConjugacyClassSum[CentralIdempotent[n,Last[path],dim]]],{_BrauerList},Factor];
 
 
 (* ::Input::Initialization:: *)
