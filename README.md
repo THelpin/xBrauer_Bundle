@@ -3,13 +3,23 @@ The xBrauer package needs BrauerAlgebra SymmetricFunctions and the xAct bundle (
 It is specially useful for the trace decomposition and irreducible decomposition of a tensor. 
 
 
+BrauerAlgebra and SymmetricFunctions are Wolfram Mathematica packages extensions
+while xBrauer is an xAct extension. 
+
+
 ****************************************
           INSTALLATION NOTES 
 ****************************************
 
 
-When uncompressed, the archive file give a number of directories  hanging
-from a directory called xBrauer_Bundle-main/. These directories (BrauerAlgebra/, SymmetricFunctions/ and xBrauer/) must be placed at one of the places Mathematica prepares for external
+When uncompressed, the archive file give a number of directories (BrauerAlgebra/, SymmetricFunctions/ and xBrauer/) 
+hanging from a directory called xBrauer_Bundle-main/. 
+
+The two Wolfram Mathematica packages directories BrauerAlgebra/, SymmetricFunctions/ 
+must me placed in a location where Mathematica looks for external packages.
+For example, $HOME/.Wolfram/Applications/ for Linux single user installation.
+
+The xAct extension folder xBrauer/ must be placed at one of the places Mathematica prepares for external
 applications inside the xAct directory. 
 
 For Wolfram Language versions before 14.1 use Mathematica instead of
