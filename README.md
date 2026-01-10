@@ -12,36 +12,39 @@ When uncompressed, the archive file give a number of directories  hanging
 from a directory called xBrauer_Bundle-main/. These directories (BrauerAlgebra/, SymmetricFunctions/ and xBrauer/) must be placed at one of the places Mathematica prepares for external
 applications inside the xAct directory. 
 
+For Wolfram Language versions before 14.1 use Mathematica instead of
+Wolfram in the following links.
+
 
 Linux:
 
    - system-wide installation (requires root priviledges):
 
-        /usr/share/Mathematica/Applications/xAct/
+        /usr/share/Wolfram/Applications/xAct/
 
    - single-user installation:
 
-        $HOME/.Mathematica/Applications/xAct/
+        $HOME/.Wolfram/Applications/xAct/
 
 Mac OS:
 
    - system-wide installation (requires root priviledges):
 
-        /Library/Mathematica/Applications/xAct/
+        /Library/Wolfram/Applications/xAct/
 
    - single-user installation:
 
-        /Users/<user>/Library/Mathematica/Applications/xAct/
+        /Users/<user>/Library/Wolfram/Applications/xAct/
 
 MSWindows:
 
    - system-wide installation:
 
-	C:\Program Files\Wolfram Research\Mathematica\<version>\AddOns\Applications\xAct\
+	C:\Program Files\Wolfram Research\Wolfram\<version>\AddOns\Applications\xAct\
 
    - single-user installation:
 
-	C:\Users\<user>\AppData\Roaming\Mathematica\Applications\xAct\
+	C:\Users\<user>\AppData\Roaming\Wolfram\Applications\xAct\
 
    Beware that in Windows these directories might be hidden!
 
