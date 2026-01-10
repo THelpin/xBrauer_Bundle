@@ -1,3 +1,3 @@
 (* ::Package:: *)
 
-Get["xAct/SymmetricFunctions/SymmetricFunctions.m"]
+Get["SymmetricFunctions/SymmetricFunctions.m"]

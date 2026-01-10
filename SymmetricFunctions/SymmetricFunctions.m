@@ -20,7 +20,7 @@
 
 
 (* ::Input::Initialization:: *)
-xAct`SymmetricFunctions`$Version={"1.0.0",{2023,24,02}}
+SymmetricFunctions`$Version={"1.0.0",{2023,24,02}}
 
 
 (* ::Input::Initialization:: *)
@@ -68,12 +68,12 @@ This program is distributed in the hope that it will be useful, but WITHOUT ANY 
 (* ::Input::Initialization:: *)
 Off[General::nostdvar]
 Off[General::nostdopt]
-BeginPackage["xAct`SymmetricFunctions`"]
+BeginPackage["SymmetricFunctions`"]
 
 
 (* ::Input::Initialization:: *)
 Print["------------------------------------------------------------"];
-Print["xAct`SymmetricFunctions  version ",$Version[[1]],", ",$Version[[2]]];
+Print["SymmetricFunctions  version ",$Version[[1]],", ",$Version[[2]]];
 Print["Copyright (C) 2020-2022, Thomas Helpin, under the General Public License."];
 
 
@@ -152,7 +152,7 @@ Plethysm::usage="Plethysm[f[\[Lambda]],h[\[Mu]]] returns the plethysm \!\(\*Subs
 (***************************************************************************************************)
 TransposePartition::usage="TransposePartition[\[Mu]] returns the transpose partition of \[Mu].";
 PartitionJoin::usage="PartitionJoin[a,b] returns a new partition whose parts are the union of a and b.";
-IncludedPartitionQ::usage="IncludedPartitionQ[\[Lambda],\[Mu]] returns true if \[Mu] is included in \[Lambda]. Than \!\(\*SubscriptBox[\(\[Mu]\), \(i\)]\) <= \!\(\*SubscriptBox[\(\[Lambda]\), \(i\)]\) for all 1<=i<=l where l is the lenght of \[Mu].";
+IncludedPartitionQ::usage="IncludedPartitionQ[\[Lambda],\[Mu]] returns true if \[Mu] is included in \[Lambda]. If true then, \!\(\*SubscriptBox[\(\[Mu]\), \(i\)]\) <= \!\(\*SubscriptBox[\(\[Lambda]\), \(i\)]\) for all 1<=i<=l where l is the lenght of \[Mu].";
 PartitionMultiplicities::usage="PartitionMultiplicities[\[Lambda]] returns (m1,m2,...) so that mi is then number of parts of size i in \[Lambda].";
 ZCoefficient::usage="ZCoefficient[\[Lambda]] returns the Z-coefficient of \[Lambda], as p. 299, Enumerative Combinatorics II, Stanley";
 PartitionDominatesQ::usage="PartitionDomanitesQ[\[Lambda],\[Mu]] returns True if \[Lambda] is greater or equal to \[Mu] in dominance order.";
@@ -166,7 +166,7 @@ CharacterSymmetricGroup[\[Lambda]] returns the character of the symmetric group 
 This function is borrowed from the package IntU developed by Z. Puchala and J. Miszczak "<>BrauercitePuchala17<>".",BrauerDocumentationReplacements];
 
 SemiStandardTableaux::usage="SemiStandardTableaux[{\[Lambda],\[Mu]},\[Rho]] returns a list of all SSYT with the skew shape \[Lambda]/\[Mu] and weight \[Rho].
-SemiStandardTableaux[\[Lambda],\[Rho]] returns a list of all SSYT with the skew shape \[Lambda] and weight \[Rho].";
+SemiStandardTableaux[\[Lambda],\[Rho]] returns a list of all SSYT with shape \[Lambda] and weight \[Rho].";
 StandardTableaux::usage="StandardTableaux[\[Lambda]] return a list of all standard Young tableaux with shape \[Lambda]. 
 StandardTableaux[n] returns a list of all standard Young tableaux associated with the partitions of n";
 
@@ -213,9 +213,14 @@ DimOfIrrepSp::usage=StringReplace["DimOfIrrepSp[\[Mu],N] returns the dimension o
 DimOfIrrepSp[\[Mu]] returns the dimension of the irrep of the symplectic group Sp[Subscript[\[Delta], d]] associated with the partition \[Mu] (Implicititly Subscript[\[Delta], d] is to be understood as an integer here).
 We use the formula presented in "<>BrauerciteSamra79<>".",BrauerDocumentationReplacements];*)
 
-(******************** We delete the citation and related function **************************)
-Remove["BrauerDOIToString","BrauerDocumentationReplacements","BrauerciteJanusz66","BrauerciteSamra79","BrauerciteRobinson61",
-"BrauerciteMacDonald95","doi","text","BrauerciteFulton96","BrauercitePuchala17"]
+(******************** At the end we delete the citation from the Names **************************)
+Unprotect[Names];
+Names["SymmetricFunctions`*"]=mycomplementSmall[Names["SymmetricFunctions`*"],
+{"BrauerciteCollins06","BrauerciteJanusz66","BrauerciteKing16","BrauercitePuchala17","BrauerciteShalile13","BrauerDocumentationReplacements",
+"BrauerDOIToString","doi","text","BrauerciteCox09","BrauerciteNazarov96","BrauerciteRobinson61","BrauerciteRui05","BrauerciteSamra79",
+"mycomplementSmall","BrauerciteBrauer1937","BrauerciteWillenbring07","BrauerciteJucys74","BrauerciteMurphy81","BrauerciteFulton96",
+"BrauerciteMacDonald95","BrauerciteBrown56","BrauerciteCollins09","BrauerciteRam95","BrauerciteShalile11","BrauerDOIToString","BrauerDocumentationReplacements"}]
+Protect[Names];
 
 
 (* ::Input::Initialization:: *)
@@ -607,27 +612,11 @@ LittlewoodRichardsonRule[list1_,list2_]/;list2[[1]]==1||Length[list2]==1:=PieriR
 (* ::Input::Initialization:: *)
 PieriRule[\[Mu]:{1,i___},\[Mu]_]:=With[{l\[Mu]=Length[\[Mu]]},IntegerPartitions[2*l\[Mu],{l\[Mu],2*l\[Mu]},{1,2}]];
 PieriRule[\[Mu]:{1,i___},\[Lambda]:{1,j___}]:=With[{n=Length[\[Mu]]+Length[\[Lambda]]},IntegerPartitions[n,{Max[Length[\[Mu]],Length[\[Lambda]]],n},{1,2}]];
-PieriRule[\[Mu]:{1,k___},\[Lambda]_]:=Module[{l\[Lambda]=Length[\[Lambda]],l\[Mu]=Length[\[Mu]],p\[Lambda]},
-p\[Lambda]=PadRight[\[Lambda],l\[Lambda]+l\[Mu]];
-If[l\[Lambda]<=l\[Mu],
-DeleteDuplicates[Flatten[Map[With[{listperm=Permutations[Join[ConstantArray[1,#],ConstantArray[0,l\[Lambda]-#]]],n1=#},(*Print[listperm];*)Map[Drop[ReverseSort[p\[Lambda]+Join[#,Join[ConstantArray[1,l\[Mu]-n1],ConstantArray[0,n1]]]],-n1]&,listperm]]&,Range[0,l\[Lambda]]],1]],
-DeleteDuplicates[Flatten[Map[With[{listperm=Permutations[Join[ConstantArray[1,#],ConstantArray[0,l\[Lambda]-#]]],n1=#},(*Print[listperm];*)Map[Drop[ReverseSort[p\[Lambda]+Join[#,Join[ConstantArray[1,l\[Mu]-n1],ConstantArray[0,n1]]]],-n1]&,listperm]]&,Range[0,l\[Mu]]],1]]
-]
+PieriRule[\[Mu]:{1},\[Lambda]_]:=Append[Table[Which[r==1, MapAt[# + 1 &, \[Lambda], 1],\[Lambda][[r - 1]] > \[Lambda][[r]], MapAt[# + 1 &, \[Lambda], r],True, Nothing], {r, Length[\[Lambda]]}],Append[\[Lambda], 1]];
+PieriRule[\[Mu]:{1,k___},\[Lambda]_]:=With[{l\[Lambda]=Length[\[Lambda]],l\[Mu]=Length[\[Mu]],p\[Lambda]=PadRight[\[Lambda],Length[\[Lambda]]+Length[\[Mu]]]},
+DeleteDuplicates[Flatten[Map[With[{listperm=Permutations[Join[ConstantArray[1,#],ConstantArray[0,l\[Lambda]-#]]],n1=#},(*Print[listperm];*)Map[Drop[ReverseSort[p\[Lambda]+Join[#,Join[ConstantArray[1,l\[Mu]-n1],ConstantArray[0,n1]]]],-n1]&,listperm]]&,Range[0,Min[l\[Lambda],l\[Mu]]]],1]]
 ];
 PieriRule[\[Mu]:{i_},\[Lambda]_]:=TransposePartition/@PieriRule[TransposePartition[\[Mu]],TransposePartition[\[Lambda]]]
-
-(*SchurExpand[Times[SchurFunction[\[Mu]:{1,k___}],SchurFunction[\[Lambda]_]]]:=Total[SchurFunction/@PartitionsPieri[\[Mu],\[Lambda]]]
-SchurExpand[Times[SchurFunction[\[Mu]:{i_}],SchurFunction[\[Lambda]:{j_,k___}]]]:=Total[SchurFunction/@TransposePartitionsPieri[TransposePartition[\[Mu]],TransposePartition[\[Lambda]]]];
-SchurExpand[Power[SchurFunction[{i_}],2]]:=Total[SchurFunction/@IntegerPartitions[2*i,{1,2}]];
-SchurExpand[Power[SchurFunction[{i_}],n_]]/;n>2:=Fold[SchurExpand[Times[#1,#2]]&,Join[{SchurExpand[Power[SchurFunction[{i}],2]]},Table[SchurFunction[{i}],n-2]]]
-SchurExpand[Power[SchurFunction[\[Mu]:{1,k___}],2]]:=With[{l\[Mu]=Length[\[Mu]]},Total[SchurFunction/@IntegerPartitions[2*l\[Mu],{l\[Mu],2*l\[Mu]},{1,2}]]]
-SchurExpand[Power[SchurFunction[\[Mu]:{1,k___}],n_]]/;n>2:=Fold[SchurExpand[Times[#1,#2]]&,Join[{SchurExpand[Power[SchurFunction[{1,k}],2]]},Table[SchurFunction[{1,k}],n-2]]]*)
-(*SchurFunction/:Times[SchurFunction[\[Mu]:{1,k___}],SchurFunction[\[Lambda]_]]:=Total[SchurFunction/@PartitionsPieri[\[Mu],\[Lambda]]]
-SchurFunction/:Times[SchurFunction[\[Mu]:{i_}],SchurFunction[\[Lambda]:{j_,k___}]]:=Total[SchurFunction/@TransposePartitionsPieri[TransposePartition[\[Mu]],TransposePartition[\[Lambda]]]];
-SchurFunction/:Power[SchurFunction[{i_}],2]:=Total[SchurFunction/@IntegerPartitions[2*i,{1,2}] ]
-SchurFunction/:Power[SchurFunction[{i_}],n_]/;n>2:=Fold[Expand[Times[#1,#2]]&,Join[{Power[SchurFunction[{i}],2]},Table[SchurFunction[{i}],n-2]]]
-SchurFunction/:Power[SchurFunction[\[Mu]:{1,k___}],2]:=With[{l\[Mu]=Length[\[Mu]]},Total[SchurFunction/@IntegerPartitions[2*l\[Mu],{l\[Mu],2*l\[Mu]},{1,2}]]]
-SchurFunction/:Power[SchurFunction[\[Mu]:{1,k___}],n_]/;n>2:=Fold[Expand[Times[#1,#2]]&,Join[{Power[SchurFunction[{1,k}],2]},Table[SchurFunction[{1,k}],n-2]]]*)
 
 
 (* ::Input::Initialization:: *)
@@ -1457,6 +1446,3 @@ End[];
 Protect@@Names["SymmetricFunctions`*"]
 Unprotect["KostkaCoefficient","CharacterSymmetricGroup"]
 EndPackage[];
-
-
-

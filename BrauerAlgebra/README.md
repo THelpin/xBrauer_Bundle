@@ -1,3 +1,6 @@
+# BrauerAlgebra
+
+
 ****************************************
           Short presentation
 ****************************************
@@ -11,7 +14,7 @@ The proofs for the traceless projector algorithm used in this package can be fou
 
 Via the xBrauer companion package, BrauerAlgebra is link to the xAct (xTensor) bundle for tensorial calculus (José M. Martin-Garcia, GPL 2002-2022) which is widely used in theoretical physics. http://www.xAct.es/
 
-To work properly the package requires the package SymmetricFunctions.
+This package needs the SymmetricFunctions package to work properly. 
 
 Author: Thomas Helpin. Affilated to the Institut Denis Poisson (France).
 
@@ -20,57 +23,56 @@ Author: Thomas Helpin. Affilated to the Institut Denis Poisson (France).
           INSTALLATION NOTES 
 ****************************************
 
+After extracting the archive, you'll find multiple files contained within a directory named BrauerAlgebra-$BranchName/. 
+Rename this directory to BrauerAlgebra/ and place it in a location where Mathematica looks for external packages. 
+To find these locations, check the values of $BaseDirectory and $UserBaseDirectory in your Mathematica installation. 
+Specifically, you'll need to move the renamed directory into the Applications/ subdirectory of either of these paths.
 
-When uncompressed, the archive files give a number of files hanging
-from a directory called BrauerAlgebra/. This directory must be placed at
-(or linked from) one of the places Mathematica prepares for external
-applications in the xAct directory. You can find the actual paths in your Mathematica
-installation in the variables $BaseDirectory and $UserBaseDirectory.
-You need the Applications/ subdirectory (or subfolder) of those
-returned by those variables.
+For Wolfram Language versions before 14.1 use Mathematica instead of
+Wolfram in the following links.
 
 Linux:
 
    - system-wide installation (requires root priviledges):
 
-        /usr/share/Mathematica/Applications/xAct
+        /usr/share/Wolfram/Applications/
 
    - single-user installation:
 
-        $HOME/.Mathematica/Applications/xAct
+        $HOME/.Wolfram/Applications/
 
 Mac OS:
 
    - system-wide installation (requires root priviledges):
 
-        /Library/Mathematica/Applications/xAct
+        /Library/Wolfram/Applications/
 
    - single-user installation:
 
-        /Users/<user>/Library/Mathematica/Applications/xAct
+        /Users/<user>/Library/Wolfram/Applications/
 
 MSWindows:
 
    - system-wide installation:
 
-	C:\Program Files\Wolfram Research\Mathematica\<version>\AddOns\Applications\xAct\
+	C:\Program Files\Wolfram Research\Wolfram\<version>\AddOns\Applications\
 
    - single-user installation:
 
-	C:\Users\<user>\AppData\Roaming\Mathematica\Applications\xAct\
+	C:\Users\<user>\AppData\Roaming\Wolfram\Applications\
 
    Beware that in Windows these directories might be hidden!
 
 
-Documentation files and exemples (like Tutorial_Examples_BrauerAlgebra.nb, etc) are placed in the xAct/BrauerAlgebra/Documentation directory.
+Documentation files and exemples (like Tutorial_BrauerAlgebra.nb, etc) are placed in the BrauerAlgebra/Documentation directory.
 
-Then the packages can be loaded using unix style
+The packages can be loaded using unix style
 
-        <<xAct/BrauerAlgebra/BrauerAlgebra.m
+        <<BrauerAlgebra/BrauerAlgebra.m
 
 or Mathematica style
 
-        <<xAct`BrauerAlgebra`
+        <<BrauerAlgebra`
 
 If you have any problem, don't hesitate to contact me at
 

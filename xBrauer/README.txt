@@ -15,6 +15,8 @@ Some tools to work on a symplectic manifold has been added.
 
 Author: Thomas Helpin. Affilated to the Institut Denis Poisson (France).
 
+This package needs SymmetricFunctions and BrauerAlgebra package. These packages should be placed the location where Mathematica looks for external packages.
+
 
 ****************************************
           INSTALLATION NOTES 
@@ -22,42 +24,45 @@ Author: Thomas Helpin. Affilated to the Institut Denis Poisson (France).
 
 
 When uncompressed, the archive files give a number of files hanging
-from a directory called xBrauer/. This directory must be placed at
+from a directory called xBrauer-$BranchName/.Rename this directory to xBrauer/ and placed it at
 (or linked from) one of the places Mathematica prepares for external
 applications in the xAct directory. You can find the actual paths in your Mathematica
 installation in the variables $BaseDirectory and $UserBaseDirectory.
 You need the Applications/ subdirectory (or subfolder) of those
 returned by those variables.
 
+For Wolfram Language versions before 14.1 use Mathematica instead of
+Wolfram in the following links.
+
 Linux:
 
    - system-wide installation (requires root priviledges):
 
-        /usr/share/Mathematica/Applications/xAct/
+        /usr/share/Wolfram/Applications/xAct/
 
    - single-user installation:
 
-        $HOME/.Mathematica/Applications/xAct/
+        $HOME/.Wolfram/Applications/xAct/
 
 Mac OS:
 
    - system-wide installation (requires root priviledges):
 
-        /Library/Mathematica/Applications/xAct/
+        /Library/Wolfram/Applications/xAct/
 
    - single-user installation:
 
-        /Users/<user>/Library/Mathematica/Applications/xAct/
+        /Users/<user>/Library/Wolfram/Applications/xAct/
 
 MSWindows:
 
    - system-wide installation:
 
-	C:\Program Files\Wolfram Research\Mathematica\<version>\AddOns\Applications\xAct\
+	C:\Program Files\Wolfram Research\Wolfram\<version>\AddOns\Applications\xAct\
 
    - single-user installation:
 
-	C:\Users\<user>\AppData\Roaming\Mathematica\Applications\xAct\
+	C:\Users\<user>\AppData\Roaming\Wolfram\Applications\xAct\
 
    Beware that in Windows these directories might be hidden!
 
